@@ -1,0 +1,41 @@
+const dailyreportLambda =  new cdk.aws_lambda.Function(this,props.logicalname+"-"+props.environment, {
+        code: cdk.aws_lambda.Code.fromAsset
+          (props.codepath,
+            {
+            bundling:
+            {
+              command:
+              ['bash', '-c', 
+              'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output'], 
+              image: cdk.aws_lambda.Runtime.PYTHON_3_9.bundlingImage,
+              local: {
+                tryBundle(outputDir: string) {
+                  try {
+                    execSync('pip3 --version')
+                  } catch {
+                    return false
+                  }
+                  execSync(`pip install -r ${path.join(props.codepath, "requirements.txt")} -t ${path.join(outputDir)}`)
+                  execSync(`cp -au ${props.codepath}/* ${path.join(outputDir)}`)
+                  return true
+                }
+              }
+              //securityOpt: 'no-new-privileges:true', // https://docs.docker.com/engine/reference/commandline/run/#optional-security-options---security-opt
+              //network: 'host', // https://docs.docker.com/engine/reference/commandline/run/#connect-a-container-to-a-network---network
+ 
+            }
+          }
+        ),
+        vpcSubnets: props.subnets,
+        securityGroups:props.securityGroup,
+        vpc:props.vpc,
+        logRetention:180,
+        handler: props.mainfilename+".lambda_handler",
+        runtime: cdk.aws_lambda.Runtime.PYTHON_3_9,
+        timeout: cdk.Duration.minutes(props.maxdurationMinutes),
+        memorySize: props.ramsize,
+        environment: props.environmentVariable,
+      });
+      this.lambda=dailyreportLambda
+  }
+}
