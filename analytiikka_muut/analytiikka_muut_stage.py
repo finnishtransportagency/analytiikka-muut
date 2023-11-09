@@ -8,7 +8,10 @@ from constructs import Construct
 
 from analytiikka_muut.analytiikka_muut_services_stack import AnalytiikkaMuutServicesStack
 
+"""
+Pipeline stage
 
+"""
 class AnalytiikkaMuutStage(Stage):
 
     def __init__(self,
@@ -23,14 +26,14 @@ class AnalytiikkaMuutStage(Stage):
         account = self.account
         region = self.region
 
-        print(f"stage {environment}: project = '{projectname}'")
-        print(f"stage {environment}: account = '{account}'")
-        print(f"stage {environment}: region = '{region}'")
+        # print(f"stage {environment}: project = '{projectname}'")
+        # print(f"stage {environment}: account = '{account}'")
+        # print(f"stage {environment}: region = '{region}'")
         
         services_stack = AnalytiikkaMuutServicesStack(self, 
                                                       f"{projectname}-services-stack-dev", 
                                                       environment,
-                                                      env=Environment(account=account, region=region)
+                                                      env = Environment(account = account, region = region )
                                                       )
         
         Tags.of(services_stack).add("Environment", environment, apply_to_launched_instances = True, priority = 300)

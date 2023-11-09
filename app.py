@@ -12,7 +12,10 @@ projectname = app.node.try_get_context('project')
 dev_account_name = os.environ["CDK_DEFAULT_ACCOUNT"]
 region_name = os.environ["CDK_DEFAULT_REGION"]
 
+"""
+App
 
+"""
 AnalytiikkaMuutStack(app, 
                      f"{projectname}-stack",
 
@@ -23,7 +26,7 @@ AnalytiikkaMuutStack(app,
     # Uncomment the next line to specialize this stack for the AWS Account
     # and Region that are implied by the current CLI configuration.
 
-    env=cdk.Environment(account=dev_account_name, region=region_name),
+    env=cdk.Environment(account = dev_account_name, region = region_name),
 
     # Uncomment the next line if you know exactly what Account and Region you
     # want to deploy the stack to. */
@@ -38,9 +41,8 @@ AnalytiikkaMuutStack(app,
 
 
 
-## Tagit kaikille
-## Lisää environment aina
-#cdk.Tags.of(app).add("Environment", environment, apply_to_launched_instances = True, priority = 300)
+# Yhteiset tagit kaikille
+# Environment tag lisätään kaikille stagessa (dev/prod)
 _tags_lst = app.node.try_get_context("tags")
 if _tags_lst:
     for _t in _tags_lst:

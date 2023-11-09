@@ -1,82 +1,194 @@
 from aws_cdk import (
     aws_lambda,
     aws_logs,
-    Duration
+    Duration,
+    BundlingOutput,
+    aws_iam,
+    Tags
 )
-
 
 from constructs import Construct
 
 
+"""
+Apukoodit lambdojen luontiin
 
-lambda_properties = {
-    "vpc": None,
-    "subnets": None,
-    "securitygroups": None,
-    "timeout": None,
-    "memory": None,
-    "environment": None
-}
+HUOM: triggerit puuttuu
+
+
+"""
 
 
 
 
 
-def PythonLambdaFunction(scope: Construct,
-                         id: str,
-                         path: str,
-                         handler: str,
-                         props: dict
-                         ):
+"""
+Lambda parametrit
+"""
+class LambdaProperties:
 
-    vpc = None
-    subnets = None
-    securitygroups = None
-    timeout = None
-    memory = None
-    environment = None
+    def __init__(self, vpc = None, subnets = None, securitygroups = None, timeout = None, memory = None, environment = None, tags = None):
+        self.vpc = vpc
+        self.subnets = subnets
+        self.securitygroups = securitygroups
+        self.timeout = Duration.minutes(timeout)
+        self.memory = memory
+        self.environment = environment
+        self.tags = tags
 
-    if "vpc" in props:
-        vpc = props["vpc"]
-    if "subnets" in props:
-        subnets = props["subnets"]
-    if "securitygroups" in props:
-        securitygroups = props["securitygroups"]
-    if "timeout" in props:
-        timeout = Duration.minutes(props["timeout"])
-    if "memory" in props:
-        memory = props["memory"]
-    if "environment" in props:
-        environment = props["environment"]
 
-    func_code = aws_lambda.Code.from_asset(path= path,
-                                           bundling={
-                    "command": [
-                        "bash",
-                        "-c",
-                        "npm install -g aws-cdk && pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
-                    ],
-                    "image": aws_lambda.Runtime.PYTHON_3_11.bundling_image
-                }
-    )
 
-    func = aws_lambda.Function(scope,
-                               id,
-                               code = func_code,
-                               vpc = vpc,
-                               vpc_subnets = subnets,
-                               security_groups = securitygroups,
-                               log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-                               handler = handler,
-                               runtime = aws_lambda.Runtime.PYTHON_3_11,
-                               timeout = timeout,
-                               memory_size = memory,
-                               environment = environment
-                               )
-    return func
-       
+
+
+"""
+Python lambda
+
+"""
+class PythonLambdaFunction(Construct):
+
+    def __init__(self,
+                 scope: Construct, 
+                 id: str, 
+                 path: str,
+                 handler: str,
+                 role: aws_iam.Role,
+                 props: LambdaProperties
+                 ):
+        super().__init__(scope, id)
+
+        func_code = aws_lambda.Code.from_asset(path = path,
+                                               bundling = {
+                                                   "command": [
+                                                       "bash",
+                                                       "-c",
+                                                       "pip install --upgrade pip && pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
+                                                    ],
+                                                    "image": aws_lambda.Runtime.PYTHON_3_11.bundling_image,
+                                                    "user": "root"
+                                               }
+                                              )
+
+        self.function = aws_lambda.Function(self,
+                                            id,
+                                            code = func_code,
+                                            vpc = props.vpc,
+                                            vpc_subnets = props.subnets,
+                                            security_groups = props.securitygrouistops,
+                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+                                            handler = handler,
+                                            runtime = aws_lambda.Runtime.PYTHON_3_11,
+                                            timeout = props.timeout,
+                                            memory_size = props.memory,
+                                            environment = props.environment,
+                                            role = role
+                                           )
+
+        if props.tags:
+            for _t in props.tags:
+                for k, v in _t.items():
+                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
+
+
+
+"""
+Java lambda
+
+"""
+class JavaLambdaFunction(Construct):
+
+    def __init__(self,
+                 scope: Construct, 
+                 id: str, 
+                 path: str,
+                 jarname: str,
+                 handler: str,
+                 role: aws_iam.Role,
+                 props: LambdaProperties
+                 ):
+        super().__init__(scope, id)
+
+        func_code = aws_lambda.Code.from_asset(path = path,
+                                               bundling = {
+                                                   "command": [
+                                                       "bash",
+                                                       "-c",
+                                                       f"mvn clean install && cp ./target/{jarname} /asset-output/",
+                                                    ],
+                                                    "image": aws_lambda.Runtime.JAVA_11.bundling_image,
+                                                    "user": "root",
+                                                    "output_type": BundlingOutput.ARCHIVED
+                                               }
+                                              )
+
+        self.function = aws_lambda.Function(self,
+                                            id,
+                                            code = func_code,
+                                            vpc = props.vpc,
+                                            vpc_subnets = props.subnets,
+                                            security_groups = props.securitygroups,
+                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+                                            handler = handler,
+                                            runtime = aws_lambda.Runtime.JAVA_11,
+                                            timeout = props.timeout,
+                                            memory_size = props.memory,
+                                            environment = props.environment,
+                                            role = role
+                                           )
+
+        if props.tags:
+            for _t in props.tags:
+                for k, v in _t.items():
+                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
+
+
+
+"""
+Node.js lambda
+"""
+class NodejsLambdaFunction(Construct):
+
+    def __init__(self,
+                 scope: Construct, 
+                 id: str, 
+                 path: str,
+                 handler: str,
+                 role: aws_iam.Role,
+                 props: LambdaProperties
+                 ):
+        super().__init__(scope, id)
+
+        func_code = aws_lambda.Code.from_asset(path = path,
+                                               bundling = {
+                                                   "command": [
+                                                       "bash",
+                                                       "-c",
+                                                       "echo \"TODO: NODEJS INSTALL COMMAND\"",
+                                                    ],
+                                                    "image": aws_lambda.Runtime.NODEJS_18_X.bundling_image,
+                                                    "user": "root"
+                                               }
+                                              )
+
+        self.function = aws_lambda.Function(self,
+                                            id,
+                                            code = func_code,
+                                            vpc = props.vpc,
+                                            vpc_subnets = props.subnets,
+                                            security_groups = props.securitygrouistops,
+                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+                                            handler = handler,
+                                            runtime = aws_lambda.Runtime.NODEJS_18_X,
+                                            timeout = props.timeout,
+                                            memory_size = props.memory,
+                                            environment = props.environment,
+                                            role = role
+                                           )
+
+        if props.tags:
+            for _t in props.tags:
+                for k, v in _t.items():
+                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
         
-
 
