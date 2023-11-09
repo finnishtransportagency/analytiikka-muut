@@ -37,10 +37,14 @@ class AnalytiikkaMuutServicesStack(Stack):
 
         vpcname = properties["vpc_name"]
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
-        selection = vpc.select_subnets()
-        subnets = selection.subnets
-        lambda_role = aws_iam.Role.from_role_arn(self, "Role", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
-        glue_role = aws_iam.Role.from_role_arn(self, "Role", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
+        
+
+        # subnets = selection.subnets
+
+        lambda_securitygroup = ""
+        lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
+
+        glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
 
         # print(f"services {environment}: vpc = '{vpc}'")
         # print(f"services {environment}: subnets = '{subnets}'")
@@ -56,15 +60,15 @@ class AnalytiikkaMuutServicesStack(Stack):
                              path = "lambda/testi1",
                              handler = "testi1.lambda_handler",
                              role = lambda_role,
-                             props = LambdaProperties(vpc = vpc, 
-                                                      subnets = subnets, 
+                             props = LambdaProperties(vpc = vpc,
                                                       timeout = 1, 
                                                       environment = {
                                                           "target_bucket": target_bucket
                                                       },
-                                                      tags = {
-                                                          "testitag": "jotain"
-                                                      }
+                                                      tags = [
+                                                          { "testitag": "jotain" },
+                                                          { "toinen": "arvo" }
+                                                      ]
                                                      )
                             )
 
@@ -90,7 +94,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":"",
                                                         "add_path_ym": "true"
-                                                    }
+                                                    },
+                                                    tags = None
                                                    )
                           )
 

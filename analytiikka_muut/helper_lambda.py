@@ -4,6 +4,7 @@ from aws_cdk import (
     Duration,
     BundlingOutput,
     aws_iam,
+    aws_ec2,
     Tags
 )
 
@@ -27,9 +28,12 @@ Lambda parametrit
 """
 class LambdaProperties:
 
-    def __init__(self, vpc = None, subnets = None, securitygroups = None, timeout = None, memory = None, environment = None, tags = None):
+    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None):
         self.vpc = vpc
-        self.subnets = subnets
+        self.subnets = None
+        if vpc != None:
+            selected = vpc.select_subnets()
+            self.subnets = aws_ec2.SubnetSelection(subnets = selected.subnets)
         self.securitygroups = securitygroups
         self.timeout = Duration.minutes(timeout)
         self.memory = memory
@@ -37,6 +41,12 @@ class LambdaProperties:
         self.tags = tags
 
 
+def add_tags(function, tags):
+    if tags:
+        for _t in tags:
+            for k, v in _t.items():
+                print(f"k = '{k}', v = '{v}'")
+                Tags.of(function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
 
@@ -73,7 +83,7 @@ class PythonLambdaFunction(Construct):
                                             code = func_code,
                                             vpc = props.vpc,
                                             vpc_subnets = props.subnets,
-                                            security_groups = props.securitygrouistops,
+                                            security_groups = props.securitygroups,
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
                                             runtime = aws_lambda.Runtime.PYTHON_3_11,
@@ -82,11 +92,8 @@ class PythonLambdaFunction(Construct):
                                             environment = props.environment,
                                             role = role
                                            )
+        add_tags(self.function, props.tags)
 
-        if props.tags:
-            for _t in props.tags:
-                for k, v in _t.items():
-                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
 
@@ -135,10 +142,7 @@ class JavaLambdaFunction(Construct):
                                             role = role
                                            )
 
-        if props.tags:
-            for _t in props.tags:
-                for k, v in _t.items():
-                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
+        add_tags(self.function, props.tags)
 
 
 
@@ -174,7 +178,7 @@ class NodejsLambdaFunction(Construct):
                                             code = func_code,
                                             vpc = props.vpc,
                                             vpc_subnets = props.subnets,
-                                            security_groups = props.securitygrouistops,
+                                            security_groups = props.securitygroups,
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
                                             runtime = aws_lambda.Runtime.NODEJS_18_X,
@@ -184,10 +188,9 @@ class NodejsLambdaFunction(Construct):
                                             role = role
                                            )
 
-        if props.tags:
-            for _t in props.tags:
-                for k, v in _t.items():
-                    Tags.of(self.function).add(k, v, apply_to_launched_instances = True, priority = 300)
+        add_tags(self.function, props.tags)
+
+
 
 
         
