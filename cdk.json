@@ -21,7 +21,9 @@
     "gittokensecretname": "github-token",
     "prodaccountparameter": "prod-account",
     "lambda_role_name": "vayla-lambda-role",
+    "lambda_securitygroup_name": "vayla-lambda-securitygroup",
     "glue_role_name": "vayla-glue-role",
+    "glue_securitygroup_name": "vayla-glue-securitygroup",
     "dev": {
       "ade_staging_bucket_name": "vayla-ade-staging-dev",
       "temp_bucket_name": "vayla-ade-temp-dev",

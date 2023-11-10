@@ -28,7 +28,9 @@ class AnalytiikkaMuutServicesStack(Stack):
         properties = self.node.try_get_context(environment)
         target_bucket = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
+        lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
         glue_role_name = self.node.try_get_context('glue_role_name')
+        glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
         # print(f"services {environment}: account = '{self.account}'")
@@ -41,9 +43,10 @@ class AnalytiikkaMuutServicesStack(Stack):
 
         # subnets = selection.subnets
 
-        lambda_securitygroup = ""
+        lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name)
         lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
 
+        glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name)
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
 
         # print(f"services {environment}: vpc = '{vpc}'")

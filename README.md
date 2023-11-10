@@ -37,18 +37,15 @@ cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloudform
 
 aws secretsmanager create-secret --name github-token --secret-string <github token> --region eu-west-1 --profile dev_LatausalueAdmin
 
-
-
-TEKEMÄTTÄ
-
-github app, vaatii organisation owner oikeuden
-
-aws ssm put-parameter --name "analytiikka-muut-git-connection" --type "String" --value "github connection id" --region eu-west-1 --profile dev_LatausalueAdmin
-
-
 git push
 
-ensimmäisen kerran pitää ajaa deploy käsin:
-npx cdk deploy --profile dev_LatausalueAdmin
+
+Ensimmäinen käsin
+cdk deploy --region=eu-west-1 --profile dev_LatausalueAdmin
+
+-> webhook oikeudet puuttuu
+
+
+
 
 
