@@ -72,7 +72,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                      )
                             )
 
-
+"""
         # Lambda: servicenow testi
         l2 = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
@@ -98,5 +98,5 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     tags = None
                                                    )
                           )
-
+"""
 

@@ -1,6 +1,8 @@
 from aws_cdk import (
     Stack,
-    Environment
+    Environment,
+    aws_secretsmanager,
+    aws_codepipeline_actions
 )
 
 from aws_cdk.pipelines import (
@@ -32,23 +34,30 @@ class AnalytiikkaMuutStack(Stack):
         appregion = self.region
 
         projectname = self.node.try_get_context('project')
-        gituser = self.node.try_get_context('gituser')
+        gitrepo = self.node.try_get_context('gitrepo')
         gitbranch = self.node.try_get_context('gitbranch')
-        gitconnectionparameterident = self.node.try_get_context('gitconnectionparameterident')
+        gittokensecretname = self.node.try_get_context('gittokensecretname')
+        
+        
         prodaccountparameter = self.node.try_get_context('prodaccountparameter')
-
-        # print(f"cicd: git connection ident = {gitconnectionparameterident}")
         # print(f"cicd: prod account param = {prodaccountparameter}")
 
-        gitconnectionid = ssm.StringParameter.value_from_lookup(self, f"{projectname}-{gitconnectionparameterident}")
+        # gitconnectionparameterident = self.node.try_get_context('gitconnectionparameterident')
+        # gitconnectionid = ssm.StringParameter.value_from_lookup(self, f"{projectname}-{gitconnectionparameterident}")
+        # print(f"cicd: git connection ident = {gitconnectionparameterident}")
+
         prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
 
         # print(f"cicd: dev account = {devaccount}")
         # print(f"cicd: app region = {appregion}")
         # print(f"cicd: prod account = {prodaccount}")
-        # print(f"cicd: git user = {gituser}")
+
+
+        gitsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "gittoken", secret_name = gittokensecretname)
+        # print(f"cicd: git repo = {gitrepo}")
         # print(f"cicd: git branch = {gitbranch}")
-        # print(f"cicd: git connection = {gitconnectionid}")
+        # print(f"cicd: git token = {gitsecret.secret_value}")
+        
 
         # Pipeline
         pipeline =  CodePipeline(self, 
@@ -59,10 +68,12 @@ class AnalytiikkaMuutStack(Stack):
                                  # docker_enabled_for_synth = True,
                                  # self_mutation = True,
                                  synth=ShellStep("Synth",
-                                                 input=CodePipelineSource.connection(gituser,
-                                                                                     gitbranch,
-                                                                                     connection_arn = f"arn:aws:codestar-connections:{appregion}:{devaccount}:connection/{gitconnectionid}"
-                                                                                    ),
+                                                 input=CodePipelineSource.git_hub(repo_string = gitrepo,
+                                                                                  branch = gitbranch,
+                                                                                  authentication = gitsecret.secret_value,
+                                                                                  trigger = aws_codepipeline_actions.GitHubTrigger("WEBHOOK")
+                                                 ),
+                                                 
                                                  commands=[
                                                      "npm install -g aws-cdk",
                                                      "python -m pip install -r requirements.txt",
@@ -72,6 +83,22 @@ class AnalytiikkaMuutStack(Stack):
                                                  ]
                                                 )
                                 )
+
+        """
+        .connection(gituser,
+                                            gitbranch,
+                                            connection_arn = f"arn:aws:codestar-connections:{appregion}:{devaccount}:connection/{gitconnectionid}"
+                                           ),
+        """
+
+
+        """
+        synth: new ShellStep("Synth", {
+  input: CodePipelineSource.gitHub("jokurepo", "main", {
+    authentication: SecretValue.secretsManager("github-token"),
+    trigger: GitHubTrigger.WEBHOOK,
+  }),
+        """
 
         # Kehitys stage
         dev_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,

@@ -16,9 +16,9 @@
   },
   "context": {
     "project": "analytiikka-muut",
-    "gituser": "finnishtransportagency/analytiikka-muut",
+    "gitrepo": "finnishtransportagency/analytiikka-muut",
     "gitbranch": "master",
-    "gitconnectionparameterident": "git-connection",
+    "gittokensecretname": "github-token",
     "prodaccountparameter": "prod-account",
     "lambda_role_name": "vayla-lambda-role",
     "glue_role_name": "vayla-glue-role",
