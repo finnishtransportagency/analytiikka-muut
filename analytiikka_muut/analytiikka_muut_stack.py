@@ -106,33 +106,6 @@ class AnalytiikkaMuutStack(Stack):
                                  #)
                                 )
 
-        """
-        
-            {
-      "Action": "ssm:GetParameters",
-      "Effect": "Allow",
-      "Resource": "arn:aws:ssm:REGION_ID:ACCOUNT_ID:parameter/PARAMETER_NAME"
-    }
-
-
-        """
-
-
-        """
-        .connection(gituser,
-                                            gitbranch,
-                                            connection_arn = f"arn:aws:codestar-connections:{appregion}:{devaccount}:connection/{gitconnectionid}"
-                                           ),
-        """
-
-
-        """
-        synth: new ShellStep("Synth", {
-  input: CodePipelineSource.gitHub("jokurepo", "main", {
-    authentication: SecretValue.secretsManager("github-token"),
-    trigger: GitHubTrigger.WEBHOOK,
-  }),
-        """
 
         # Kehitys stage
         dev_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
