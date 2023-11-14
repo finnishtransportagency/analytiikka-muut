@@ -79,8 +79,6 @@ class AnalytiikkaMuutStack(Stack):
                                                  commands=[
                                                      "npm install -g aws-cdk",
                                                      "python -m pip install -r requirements.txt",
-                                                     # "npm ci",
-                                                     # "npm run build",
                                                      "cdk synth"
                                                  ]
                                                 ),
@@ -89,14 +87,16 @@ class AnalytiikkaMuutStack(Stack):
                                          aws_iam.PolicyStatement(
                                              actions = ["ssm:GetParameters"],
                                              effect = aws_iam.Effect.ALLOW,
-                                             resources = [f"arn:aws:ssm:{devaccount}:{appregion}:parameter/*"]
+                                             resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
                                          ),
                                          aws_iam.PolicyStatement(
-                                             actions = ["ec2:DescribeVpcs"],
+                                             actions = [
+                                                 "ec2:DescribeVpcs",
+                                                 "ec2:DescribeSubnets"
+                                                 ],
                                              effect = aws_iam.Effect.ALLOW,
                                              resources = ["*"]
                                          )
-
                                      ]
                                  )
                                 )
