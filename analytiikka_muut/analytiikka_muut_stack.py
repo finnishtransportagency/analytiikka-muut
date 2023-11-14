@@ -95,7 +95,8 @@ class AnalytiikkaMuutStack(Stack):
                                              actions = [
                                                  "ec2:DescribeVpcs",
                                                  "ec2:DescribeSubnets",
-                                                 "ec2:DescribeRouteTables"
+                                                 "ec2:DescribeRouteTables",
+                                                 "ec2:DescribeVpnGateways"
                                                  ],
                                              effect = aws_iam.Effect.ALLOW,
                                              resources = ["*"]
