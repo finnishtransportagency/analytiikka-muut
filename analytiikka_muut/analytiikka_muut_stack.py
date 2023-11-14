@@ -79,30 +79,31 @@ class AnalytiikkaMuutStack(Stack):
                                                  commands=[
                                                      "npm install -g aws-cdk",
                                                      "python -m pip install -r requirements.txt",
-                                                     "cdk synth"
+                                                     "npx cdk synth"
                                                  ]
-                                                ),
-                                 code_build_defaults = CodeBuildOptions(
-                                     role_policy=[
-                                         aws_iam.PolicyStatement(
-                                             actions = [
-                                                 "ssm:GetParameters",
-                                                 "ssm:GetParameter"],
-                                             effect = aws_iam.Effect.ALLOW,
-                                             resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
-                                         ),
-                                         aws_iam.PolicyStatement(
-                                             actions = [
-                                                 "ec2:DescribeVpcs",
-                                                 "ec2:DescribeSubnets",
-                                                 "ec2:DescribeRouteTables",
-                                                 "ec2:DescribeVpnGateways"
-                                                 ],
-                                             effect = aws_iam.Effect.ALLOW,
-                                             resources = ["*"]
-                                         )
-                                     ]
-                                 )
+                                                )
+                                 #               ,
+                                 #code_build_defaults = CodeBuildOptions(
+                                 #    role_policy=[
+                                 #        aws_iam.PolicyStatement(
+                                 #            actions = [
+                                 #                "ssm:GetParameters",
+                                 #                "ssm:GetParameter"],
+                                 #            effect = aws_iam.Effect.ALLOW,
+                                 #            resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
+                                 #        ),
+                                 #        aws_iam.PolicyStatement(
+                                 #            actions = [
+                                 #                "ec2:DescribeVpcs",
+                                 #                "ec2:DescribeSubnets",
+                                 #                "ec2:DescribeRouteTables",
+                                 #                "ec2:DescribeVpnGateways"
+                                 #                ],
+                                 #            effect = aws_iam.Effect.ALLOW,
+                                 #            resources = ["*"]
+                                 #        )
+                                 #    ]
+                                 #)
                                 )
 
         """

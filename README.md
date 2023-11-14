@@ -31,19 +31,18 @@ TEHTY
 
 Profiileihin kopioitu väyläpilven tilapäiset kredentiaalit
 
-cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --profile dev_LatausalueAdmin
+npx cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile dev_LatausalueAdmin
 
-cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile prod_LatausalueAdmin
+npx cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile prod_LatausalueAdmin
 
-aws secretsmanager create-secret --name github-token --secret-string <github token> --region eu-west-1 --profile dev_LatausalueAdmin
+aws secretsmanager create-secret --name github-token --secret-string <github token> --profile dev_LatausalueAdmin
 
 git push
 
-
 Ensimmäinen käsin
-cdk deploy --region=eu-west-1 --profile dev_LatausalueAdmin
+npx cdk deploy --profile dev_LatausalueAdmin
 
--> webhook oikeudet puuttuu
+
 
 
 
