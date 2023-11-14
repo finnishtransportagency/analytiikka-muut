@@ -2,13 +2,15 @@ from aws_cdk import (
     Stack,
     Environment,
     aws_secretsmanager,
-    aws_codepipeline_actions
+    aws_codepipeline_actions,
+    aws_iam
 )
 
 from aws_cdk.pipelines import (
     CodePipeline, 
     CodePipelineSource, 
     ShellStep, 
+    CodeBuildOptions,
     ManualApprovalStep
 )
 
@@ -81,8 +83,35 @@ class AnalytiikkaMuutStack(Stack):
                                                      # "npm run build",
                                                      "cdk synth"
                                                  ]
-                                                )
+                                                ),
+                                 code_build_defaults = CodeBuildOptions(
+                                     role_policy=[
+                                         aws_iam.PolicyStatement(
+                                             actions = ["ssm:GetParameters"],
+                                             effect = aws_iam.Effect.ALLOW,
+                                             resources = [f"arn:aws:ssm:{devaccount}:{appregion}:parameter/*"]
+                                         ),
+                                         aws_iam.PolicyStatement(
+                                             actions = ["ec2:DescribeVpcs"],
+                                             effect = aws_iam.Effect.ALLOW,
+                                             resources = ["*"]
+                                         )
+
+                                     ]
+                                 )
                                 )
+
+        """
+        
+            {
+      "Action": "ssm:GetParameters",
+      "Effect": "Allow",
+      "Resource": "arn:aws:ssm:REGION_ID:ACCOUNT_ID:parameter/PARAMETER_NAME"
+    }
+
+
+        """
+
 
         """
         .connection(gituser,
