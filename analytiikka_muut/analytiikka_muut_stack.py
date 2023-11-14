@@ -85,14 +85,17 @@ class AnalytiikkaMuutStack(Stack):
                                  code_build_defaults = CodeBuildOptions(
                                      role_policy=[
                                          aws_iam.PolicyStatement(
-                                             actions = ["ssm:GetParameters"],
+                                             actions = [
+                                                 "ssm:GetParameters",
+                                                 "ssm:GetParameter"],
                                              effect = aws_iam.Effect.ALLOW,
                                              resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
                                          ),
                                          aws_iam.PolicyStatement(
                                              actions = [
                                                  "ec2:DescribeVpcs",
-                                                 "ec2:DescribeSubnets"
+                                                 "ec2:DescribeSubnets",
+                                                 "ec2:DescribeRouteTables"
                                                  ],
                                              effect = aws_iam.Effect.ALLOW,
                                              resources = ["*"]
