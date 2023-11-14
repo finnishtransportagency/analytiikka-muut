@@ -78,8 +78,8 @@ class AnalytiikkaMuutStack(Stack):
                                                      "npm install -g aws-cdk",
                                                      "python -m pip install -r requirements.txt",
                                                      # "npm ci",
-                                                     "npm run build",
-                                                     "npx cdk synth"
+                                                     # "npm run build",
+                                                     "cdk synth"
                                                  ]
                                                 )
                                 )

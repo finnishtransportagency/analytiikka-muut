@@ -166,7 +166,7 @@ class NodejsLambdaFunction(Construct):
                                                    "command": [
                                                        "bash",
                                                        "-c",
-                                                       "echo \"TODO: NODEJS INSTALL COMMAND\"",
+                                                       "npm ci",
                                                     ],
                                                     "image": aws_lambda.Runtime.NODEJS_18_X.bundling_image,
                                                     "user": "root"
