@@ -60,9 +60,10 @@ class AnalytiikkaMuutServicesStack(Stack):
         #
 
         dummy = aws_s3.Bucket(self,
-                              bucket_name= "vayla-cdk-test-xxxx", 
-                              auto_delete_objects= True,
-                              removal_policy= RemovalPolicy.DESTROY)
+                              id = f"vayla-cdk-test-xxxx-{environment}",
+                              bucket_name = f"vayla-cdk-test-xxxx-{environment}", 
+                              auto_delete_objects = True,
+                              removal_policy = RemovalPolicy.DESTROY)
 
 
 
