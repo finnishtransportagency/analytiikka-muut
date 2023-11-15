@@ -25,10 +25,6 @@ glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Ei testattu
 
 
 
-
-
-TEHTY
-
 Profiileihin kopioitu väyläpilven tilapäiset kredentiaalit
 
 npx cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile dev_LatausalueAdmin
@@ -37,12 +33,16 @@ npx cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloud
 
 aws secretsmanager create-secret --name github-token --secret-string <github token> --profile dev_LatausalueAdmin
 
-git push
+dev- tilille luotu parametri jossa prod- tilin id
 
-Ensimmäinen käsin
+git commit &  push
+
 npx cdk deploy --profile dev_LatausalueAdmin
 
-HUOM: build kaatui oikeusvirheeseen, lisätty oikeudet pipelinelle jonka jälkeen uusi deploy.
+
+tilanne 2023-11-15
+Deploy läpi ilman virheitä
+
 
 
 
