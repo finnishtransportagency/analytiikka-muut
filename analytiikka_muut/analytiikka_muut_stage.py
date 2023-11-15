@@ -27,11 +27,11 @@ class AnalytiikkaMuutStage(Stage):
         region = self.region
 
         # print(f"stage {environment}: project = '{projectname}'")
-        # print(f"stage {environment}: account = '{account}'")
-        # print(f"stage {environment}: region = '{region}'")
+        print(f"stage {environment}: account = '{account}'")
+        print(f"stage {environment}: region = '{region}'")
         
         services_stack = AnalytiikkaMuutServicesStack(self, 
-                                                      f"{projectname}-services-stack-dev", 
+                                                      f"{projectname}-services-stack-{environment}", 
                                                       environment,
                                                       env = Environment(account = account, region = region )
                                                       )

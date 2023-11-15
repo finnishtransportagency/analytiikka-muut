@@ -44,6 +44,7 @@
         "System ID": "0"
       }
     ],
-    "@aws-cdk/core:newStyleStackSynthesis": false
+    "@aws-cdk/core:newStyleStackSynthesis": true
+
   }
 }

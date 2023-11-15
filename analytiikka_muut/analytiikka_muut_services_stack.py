@@ -33,8 +33,8 @@ class AnalytiikkaMuutServicesStack(Stack):
         glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
-        # print(f"services {environment}: account = '{self.account}'")
-        # print(f"services {environment}: region = '{self.region}'")
+        print(f"services {environment}: account = '{self.account}'")
+        print(f"services {environment}: region = '{self.region}'")
         # print(f"services {environment}: properties = '{properties}'")
 
         vpcname = properties["vpc_name"]
