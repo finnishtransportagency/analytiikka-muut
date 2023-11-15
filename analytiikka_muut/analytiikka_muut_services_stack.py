@@ -1,7 +1,11 @@
 from aws_cdk import (
     Stack,
-    aws_ec2
+    aws_ec2,
+    aws_s3,
+    RemovalPolicy
 )
+
+
 
 from constructs import Construct
 
@@ -55,25 +59,31 @@ class AnalytiikkaMuutServicesStack(Stack):
         # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä pääteltyjä asioita tarvittaessa
         #
 
+        dummy = aws_s3.Bucket(self,
+                              bucket_name= "vayla-cdk-test-xxxx", 
+                              auto_delete_objects= True,
+                              removal_policy= RemovalPolicy.DESTROY)
+
+
 
         # Lambda: testi 1
-        l1 = PythonLambdaFunction(self,
-                             id = "testi1",
-                             path = "lambda/testi1",
-                             handler = "testi1.lambda_handler",
-                             role = lambda_role,
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout = 1, 
-                                                      environment = {
-                                                          "target_bucket": target_bucket
-                                                      },
-                                                      tags = [
-                                                          { "testitag": "jotain" },
-                                                          { "toinen": "arvo" }
-                                                      ]
-                                                     )
-                            )
-
+        # l1 = PythonLambdaFunction(self,
+        #                      id = "testi1",
+        #                      path = "lambda/testi1",
+        #                      handler = "testi1.lambda_handler",
+        #                      role = lambda_role,
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout = 1, 
+        #                                               environment = {
+        #                                                   "target_bucket": target_bucket
+        #                                               },
+        #                                               tags = [
+        #                                                   { "testitag": "jotain" },
+        #                                                   { "toinen": "arvo" }
+        #                                               ]
+        #                                              )
+        #                     )
+# 
         # # Lambda: servicenow testi
         # l2 = JavaLambdaFunction(self,
         #                    id = "servicenow-sn_customerservice_case",
