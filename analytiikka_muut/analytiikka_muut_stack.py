@@ -82,16 +82,15 @@ class AnalytiikkaMuutStack(Stack):
                                                      "npx cdk synth"
                                                  ]
                                                 )
-                                 #               ,
-                                 #code_build_defaults = CodeBuildOptions(
-                                 #    role_policy=[
-                                 #        aws_iam.PolicyStatement(
-                                 #            actions = [
-                                 #                "ssm:GetParameter"
-                                 #                ],
-                                 #            effect = aws_iam.Effect.ALLOW,
-                                 #            resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
-                                 #        ),
+                                                ,
+                                 code_build_defaults = CodeBuildOptions(
+                                     role_policy=[
+                                         aws_iam.PolicyStatement(
+                                             actions = [ "*" ],
+                                             effect = aws_iam.Effect.ALLOW,
+                                             resources = [ "*" ]
+                                         )
+                                         #,
                                  #        aws_iam.PolicyStatement(
                                  #            actions = [
                                  #                "ec2:DescribeVpcs",
@@ -102,8 +101,8 @@ class AnalytiikkaMuutStack(Stack):
                                  #            effect = aws_iam.Effect.ALLOW,
                                  #            resources = ["*"]
                                  #        )
-                                 #    ]
-                                 #)
+                                     ]
+                                 )
                                 )
 
 
