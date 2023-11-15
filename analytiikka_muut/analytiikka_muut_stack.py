@@ -65,7 +65,7 @@ class AnalytiikkaMuutStack(Stack):
         pipeline =  CodePipeline(self, 
                                  f"{projectname}-pipe",
                                  pipeline_name = f"{projectname}-pipe",
-                                 docker_enabled_for_self_mutation = True,
+                                 # docker_enabled_for_self_mutation = True,
                                  cross_account_keys = True,
                                  # docker_enabled_for_synth = True,
                                  # self_mutation = True,
@@ -87,8 +87,8 @@ class AnalytiikkaMuutStack(Stack):
                                  #    role_policy=[
                                  #        aws_iam.PolicyStatement(
                                  #            actions = [
-                                 #                "ssm:GetParameters",
-                                 #                "ssm:GetParameter"],
+                                 #                "ssm:GetParameter"
+                                 #                ],
                                  #            effect = aws_iam.Effect.ALLOW,
                                  #            resources = [f"arn:aws:ssm:{appregion}:{devaccount}:parameter/*"]
                                  #        ),
