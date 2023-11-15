@@ -27,7 +27,6 @@ HUOM: triggerit puuttuu
 Lambda parametrit
 """
 class LambdaProperties:
-
     def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None):
         self.vpc = vpc
         self.subnets = None
@@ -41,11 +40,15 @@ class LambdaProperties:
         self.tags = tags
 
 
+
+"""
+Lisää tagit
+"""
 def add_tags(function, tags):
     if tags:
         for _t in tags:
             for k, v in _t.items():
-                print(f"k = '{k}', v = '{v}'")
+                # print(f"k = '{k}', v = '{v}'")
                 Tags.of(function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 

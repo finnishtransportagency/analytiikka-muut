@@ -1,6 +1,5 @@
 from aws_cdk import (
     Stack,
-    Tags,
     aws_ec2
 )
 
@@ -28,9 +27,9 @@ class AnalytiikkaMuutServicesStack(Stack):
         properties = self.node.try_get_context(environment)
         target_bucket = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
-        lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
-        glue_role_name = self.node.try_get_context('glue_role_name')
-        glue_security_group_name = self.node.try_get_context('glue_security_group_name')
+        # lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
+        # glue_role_name = self.node.try_get_context('glue_role_name')
+        # glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
         print(f"services {environment}: account = '{self.account}'")
@@ -75,31 +74,29 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                      )
                             )
 
-"""
-        # Lambda: servicenow testi
-        l2 = JavaLambdaFunction(self,
-                           id = "servicenow-sn_customerservice_case",
-                           path = "lambda/servicenow",
-                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
-                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
-                           role = lambda_role,
-                           props = LambdaProperties(timeout = 15,
-                                                    memory = 2048,
-                                                    environment={
-                                                        "secret_name": "credentials-servicenow-api",
-                                                        "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
-                                                        "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
-                                                        "output_split_limit": "1500",
-                                                        "api_limit": "600",
-                                                        "output_bucket": "sn_customerservice_case",
-                                                        "output_path": "cmdb_ci_service",
-                                                        "output_filename": "servicenow_sn_customerservice_case",
-                                                        "coordinate_transform": "true",
-                                                        "fullscans":"",
-                                                        "add_path_ym": "true"
-                                                    },
-                                                    tags = None
-                                                   )
-                          )
-"""
+        # # Lambda: servicenow testi
+        # l2 = JavaLambdaFunction(self,
+        #                    id = "servicenow-sn_customerservice_case",
+        #                    path = "lambda/servicenow",
+        #                    jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+        #                    handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+        #                    role = lambda_role,
+        #                    props = LambdaProperties(timeout = 15,
+        #                                             memory = 2048,
+        #                                             environment={
+        #                                                 "secret_name": "credentials-servicenow-api",
+        #                                                 "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
+        #                                                 "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
+        #                                                 "output_split_limit": "1500",
+        #                                                 "api_limit": "600",
+        #                                                 "output_bucket": "sn_customerservice_case",
+        #                                                 "output_path": "cmdb_ci_service",
+        #                                                 "output_filename": "servicenow_sn_customerservice_case",
+        #                                                 "coordinate_transform": "true",
+        #                                                 "fullscans":"",
+        #                                                 "add_path_ym": "true"
+        #                                             },
+        #                                             tags = None
+        #                                            )
+        #                   )
 

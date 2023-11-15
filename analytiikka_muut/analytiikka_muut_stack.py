@@ -75,6 +75,7 @@ class AnalytiikkaMuutStack(Stack):
                                                  
                                                  commands=[
                                                      "npm install -g aws-cdk",
+                                                     # "python -m pip install --upgrade pip"
                                                      "python -m pip install -r requirements.txt",
                                                      "npx cdk synth"
                                                  ]

@@ -42,6 +42,8 @@ git push
 Ensimmäinen käsin
 npx cdk deploy --profile dev_LatausalueAdmin
 
+HUOM: build kaatui oikeusvirheeseen, lisätty oikeudet pipelinelle jonka jälkeen uusi deploy.
+
 
 
 
