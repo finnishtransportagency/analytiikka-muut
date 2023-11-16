@@ -59,27 +59,47 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
         lambda_role = aws_iam.Role(self, id = lambda_role_name, role_name= lambda_role_name,
-                                   assumed_by= ServicePrincipal("lambda.amazonaws.com")
-                                   )
-        lambda_role.add_to_policy(
-            aws_iam.PolicyStatement(
-                effect= aws_iam.Effect.ALLOW,
-                actions = ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-                resources = ['arn:aws:logs:*:*:*'],
-            )
-        )
-        lambda_role.add_to_policy(
-            aws_iam.PolicyStatement(
-                effect= aws_iam.Effect.ALLOW,
-                actions = ['secretsmanager:GetSecretValue'],
-                resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
-            )
-        )
+                                   assumed_by= ServicePrincipal("lambda.amazonaws.com"),
+                                   managed_policies=[
+                                       # logs & S3
+                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaExecute"),
+                                       # logs & vpc 
+                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaVPCAccessExecutionRole")
+
+                                   ],
+                                   inline_policies=[
+                                       aws_iam.PolicyStatement(
+                                           effect= aws_iam.Effect.ALLOW,
+                                           actions = ['secretsmanager:GetSecretValue'],
+                                           resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+                                       ),
+                                       aws_iam.PolicyStatement(
+                                           effect= aws_iam.Effect.ALLOW,
+                                           actions = ['ssm:GetParameter'],
+                                           resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
+                                       )
+                                   ]
+                                  )
+        
         # lambda_role.add_to_policy(
         #     aws_iam.PolicyStatement(
         #         effect= aws_iam.Effect.ALLOW,
+        #         actions = ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+        #         resources = ['arn:aws:logs:*:*:*'],
+        #     )
+        # )
+        # lambda_role.add_to_policy(
+        #     aws_iam.PolicyStatement(
+        #         effect= aws_iam.Effect.ALLOW,
+        #         actions = ['secretsmanager:GetSecretValue'],
+        #         resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+        #     )
+        # )
+        # # lambda_role.add_to_policy(
+        #     aws_iam.PolicyStatement(
+        #         effect= aws_iam.Effect.ALLOW,
         #         actions = ['ssm:GetParameter'],
-        #         resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter:*'],
+        #         resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
         #     )
         # )
 
