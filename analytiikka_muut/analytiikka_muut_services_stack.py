@@ -102,7 +102,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                              id = "testi1",
                              path = "lambda/testi1",
                              handler = "testi1.lambda_handler",
-                             # role = lambda_role,
+                             cdk app role = lambda_role,
                              props = LambdaProperties(vpc = vpc,
                                                       timeout = 2, 
                                                       environment = {
