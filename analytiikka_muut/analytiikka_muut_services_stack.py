@@ -63,7 +63,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                    assumed_by= ServicePrincipal("lambda.amazonaws.com"),
                                    managed_policies=[
                                        # logs & S3
-                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaExecute"),
+                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaExecute"),
                                        # logs & vpc 
                                        aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
 
