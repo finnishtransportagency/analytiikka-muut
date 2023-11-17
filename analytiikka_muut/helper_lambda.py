@@ -1,5 +1,8 @@
 from aws_cdk import (
     aws_lambda,
+    aws_lambda_python_alpha,
+    aws_events,
+    aws_events_targets,
     aws_logs,
     Duration,
     BundlingOutput,
@@ -8,16 +11,13 @@ from aws_cdk import (
     Tags
 )
 
-from aws_cdk import aws_lambda_python_alpha as _lambdapython
-
 from constructs import Construct
 
 
 """
 Apukoodit lambdojen luontiin
 
-HUOM: triggerit puuttuu
-
+PYTHON OK
 
 """
 
@@ -29,7 +29,7 @@ HUOM: triggerit puuttuu
 Lambda parametrit
 """
 class LambdaProperties:
-    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None):
+    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None, schedule: str = None):
         self.vpc = vpc
         self.subnets = None
         if vpc != None:
@@ -40,6 +40,7 @@ class LambdaProperties:
         self.memory = memory
         self.environment = environment
         self.tags = tags
+        self.schedule = schedule
 
 
 
@@ -50,13 +51,17 @@ def add_tags(function, tags):
     if tags:
         for _t in tags:
             for k, v in _t.items():
-                # print(f"k = '{k}', v = '{v}'")
                 Tags.of(function).add(k, v, apply_to_launched_instances = True, priority = 300)
+
+
 
 
 
 """
 Python lambda
+
+Jos tarvitaan layer: https://github.com/aws-samples/aws-cdk-examples/blob/master/python/lambda-layer/app.py
+
 
 """
 class PythonLambdaFunction(Construct):
@@ -72,35 +77,8 @@ class PythonLambdaFunction(Construct):
                  props: LambdaProperties
                  ):
         super().__init__(scope, id)
-
-        # func_code = aws_lambda.Code.from_asset(path = path,
-        #                                        bundling = {
-        #                                            "command": [
-        #                                                "bash",
-        #                                                "-c",
-        #                                                "pip install --upgrade pip && pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
-        #                                             ],
-        #                                             "image": aws_lambda.Runtime.PYTHON_3_11.bundling_image,
-        #                                             "user": "root"
-        #                                        }
-        #                                       )
-        # 
-        # self.function = aws_lambda.Function(self,
-        #                                     id,
-        #                                     code = func_code,
-        #                                     vpc = props.vpc,
-        #                                     vpc_subnets = props.subnets,
-        #                                     security_groups = props.securitygroups,
-        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-        #                                     handler = handler,
-        #                                     runtime = aws_lambda.Runtime.PYTHON_3_11,
-        #                                     timeout = props.timeout,
-        #                                     memory_size = props.memory,
-        #                                     environment = props.environment,
-        #                                     role = role
-        #                                    )
         
-        self.function = _lambdapython.PythonFunction(
+        self.function = aws_lambda_python_alpha.PythonFunction(
             self, 
             id,
             function_name = id,
@@ -120,7 +98,12 @@ class PythonLambdaFunction(Construct):
         
         add_tags(self.function, props.tags)
 
-
+        if props.schedule != None and props.schedule != "":
+            rule = aws_events.Rule(self,
+                                   f"{id}-schedule",
+                                   schedule = aws_events.Schedule.expression(props.schedule)
+            )
+            rule.add_target(aws_events_targets.LambdaFunction(self.function))
 
 
 

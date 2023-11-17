@@ -40,13 +40,11 @@ git commit &  push
 npx cdk deploy --profile dev_LatausalueAdmin
 
 
-tilanne 2023-11-15
-Deploy läpi ilman virheitä
 
 
 
 
 
 
-
+https://github.com/aws-samples/aws-cdk-examples/tree/master/python
 
