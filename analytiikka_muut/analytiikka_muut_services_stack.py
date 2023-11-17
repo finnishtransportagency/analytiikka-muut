@@ -72,15 +72,19 @@ class AnalytiikkaMuutServicesStack(Stack):
                                        #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
                                    ],
                                    inline_policies={
-                                       "SecretsManager": aws_iam.PolicyStatement(
-                                           effect= aws_iam.Effect.ALLOW,
-                                           actions = [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
-                                           resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+                                       "SecretsManager": aws_iam.PolicyDocument(
+                                           statements=[aws_iam.PolicyStatement(
+                                               effect= aws_iam.Effect.ALLOW,
+                                               actions = [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+                                               resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*']
+                                           )]
                                        ),
-                                       "ParameterStore": aws_iam.PolicyStatement(
-                                           effect= aws_iam.Effect.ALLOW,
-                                           actions = ['ssm:GetParameter'],
-                                           resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
+                                       "ParameterStore": aws_iam.PolicyDocument(
+                                           statements=[aws_iam.PolicyStatement(
+                                               effect= aws_iam.Effect.ALLOW,
+                                               actions = ['ssm:GetParameter'],
+                                               resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*']
+                                           )]
                                        )
                                         
                                    }
