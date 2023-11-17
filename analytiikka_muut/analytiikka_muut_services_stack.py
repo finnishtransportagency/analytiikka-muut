@@ -71,20 +71,26 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                                                      managed_policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
                                        #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
                                    ],
-                                   inline_policies=[
-                                       aws_iam.PolicyStatement(
+                                   inline_policies={
+                                       "SecretsManager": aws_iam.PolicyStatement(
                                            effect= aws_iam.Effect.ALLOW,
                                            actions = [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
                                            resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
                                        ),
-                                       aws_iam.PolicyStatement(
+                                       "ParameterStore": aws_iam.PolicyStatement(
                                            effect= aws_iam.Effect.ALLOW,
                                            actions = ['ssm:GetParameter'],
                                            resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
                                        )
-                                   ]
-
+                                        
+                                   }
         )
+
+
+
+
+
+
 
         #,
         #                           )
