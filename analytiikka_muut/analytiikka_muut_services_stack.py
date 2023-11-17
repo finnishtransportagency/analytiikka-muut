@@ -63,10 +63,12 @@ class AnalytiikkaMuutServicesStack(Stack):
                                    assumed_by= ServicePrincipal("lambda.amazonaws.com"),
                                    managed_policies=[
                                        # logs & S3
-                                       aws_iam.ManagedPolicy.from_managed_policy_arn("arn:aws:iam::aws:policy/AWSLambdaExecute"),
+                                       aws_iam.ManagedPolicy.from_managed_policy_arn(self, id = "AWSLambdaExecute",
+                                                                                     managed_policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"),
                                         # from_aws_managed_policy_name("AWSLambdaExecute"),
                                        # logs & vpc 
-                                       aws_iam.ManagedPolicy.from_managed_policy_arn("arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
+                                       aws_iam.ManagedPolicy.from_managed_policy_arn(self, id = "AWSLambdaVPCAccessExecutionRole",
+                                                                                     managed_policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
                                        #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
                                    ],
                                    inline_policies=[
