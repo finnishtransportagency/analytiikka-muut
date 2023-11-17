@@ -1,5 +1,6 @@
 from aws_cdk import (
     aws_lambda,
+    aws_lambda_python_alpha as _lambdapython,
     aws_logs,
     Duration,
     BundlingOutput,
@@ -63,39 +64,62 @@ class PythonLambdaFunction(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
+                 index: str,
                  handler: str,
+                 description: str,
                  role: aws_iam.Role,
                  props: LambdaProperties
                  ):
         super().__init__(scope, id)
 
-        func_code = aws_lambda.Code.from_asset(path = path,
-                                               bundling = {
-                                                   "command": [
-                                                       "bash",
-                                                       "-c",
-                                                       "pip install --upgrade pip && pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
-                                                    ],
-                                                    "image": aws_lambda.Runtime.PYTHON_3_11.bundling_image,
-                                                    "user": "root"
-                                               }
-                                              )
-
-        self.function = aws_lambda.Function(self,
-                                            id,
-                                            code = func_code,
-                                            vpc = props.vpc,
-                                            vpc_subnets = props.subnets,
-                                            security_groups = props.securitygroups,
-                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-                                            handler = handler,
-                                            runtime = aws_lambda.Runtime.PYTHON_3_11,
-                                            timeout = props.timeout,
-                                            memory_size = props.memory,
-                                            environment = props.environment,
-                                            role = role
-                                           )
+        # func_code = aws_lambda.Code.from_asset(path = path,
+        #                                        bundling = {
+        #                                            "command": [
+        #                                                "bash",
+        #                                                "-c",
+        #                                                "pip install --upgrade pip && pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
+        #                                             ],
+        #                                             "image": aws_lambda.Runtime.PYTHON_3_11.bundling_image,
+        #                                             "user": "root"
+        #                                        }
+        #                                       )
+        # 
+        # self.function = aws_lambda.Function(self,
+        #                                     id,
+        #                                     code = func_code,
+        #                                     vpc = props.vpc,
+        #                                     vpc_subnets = props.subnets,
+        #                                     security_groups = props.securitygroups,
+        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+        #                                     handler = handler,
+        #                                     runtime = aws_lambda.Runtime.PYTHON_3_11,
+        #                                     timeout = props.timeout,
+        #                                     memory_size = props.memory,
+        #                                     environment = props.environment,
+        #                                     role = role
+        #                                    )
+        
+        self.function = _lambdapython.PythonFunction(
+            self, 
+            id,
+            function_name = id,
+            description = description,
+            runtime = aws_lambda.Runtime.PYTHON_3_11,
+            entry = path,
+            index = index,
+            handler = handler,
+            role = role,
+            vpc = props.vpc,
+            security_groups = props.securitygroups,
+            timeout = props.timeout,
+            memory_size = props.memory,
+            environment = props.environment,
+            log_retention = aws_logs.RetentionDays.THREE_MONTHS
+            )
+        
         add_tags(self.function, props.tags)
+
+
 
 
 

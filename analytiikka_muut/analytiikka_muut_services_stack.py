@@ -70,12 +70,13 @@ class AnalytiikkaMuutServicesStack(Stack):
                               removal_policy = RemovalPolicy.DESTROY)
 
 
-
         # Lambda: testi 1
         l1 = PythonLambdaFunction(self,
                              id = "testi1",
                              path = "lambda/testi1",
+                             index = "testi1.py",
                              handler = "testi1.lambda_handler",
+                             description = "Testilambdan kuvaus",
                              role = lambda_role,
                              props = LambdaProperties(vpc = vpc,
                                                       timeout = 2, 
