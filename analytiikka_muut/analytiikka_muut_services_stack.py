@@ -74,6 +74,11 @@ class AnalytiikkaMuutServicesStack(Stack):
         # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
 
         # TODO: "Parameter ScheduleExpression is not valid" => MITEN KORJATAAN
+        # events,Schedule.cron ( minute='0',
+        # hour='18',
+        # month='*',
+        # week_day='MON-FRI',
+        # year='*' )
         l1 = PythonLambdaFunction(self,
                              id = "testi1",
                              path = "lambda/testi1",
