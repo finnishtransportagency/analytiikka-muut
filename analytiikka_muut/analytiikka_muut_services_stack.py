@@ -25,22 +25,29 @@ def create_lambda_role(self, role_name: str):
                                 assumed_by= ServicePrincipal("lambda.amazonaws.com"),
                                 managed_policies=[
                                     # logs & S3
-                                    aws_iam.ManagedPolicy.from_managed_policy_arn(id = "AWSLambdaExecute",
-                                                                                  managed_policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"),
-                                     # from_aws_managed_policy_name("AWSLambdaExecute"),
+                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaExecute"),
                                     # logs & vpc 
-                                    aws_iam.ManagedPolicy.from_managed_policy_arn(id = "AWSLambdaVPCAccessExecutionRole",
-                                                                                  managed_policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
-                                    #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
+                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
                                 ]
      )
-     #lambda_role.add_to_policy(
-     #    aws_iam.PolicyStatement(
-     #        effect= aws_iam.Effect.ALLOW,
-     #        actions = ['secretsmanager:GetSecretValue'],
-     #        resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
-     #    )
-     #)
+
+     lambda_role.add_to_policy(
+         aws_iam.PolicyStatement(
+             effect= aws_iam.Effect.ALLOW,
+             actions = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+             resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+         )
+     )
+
+     # lambda_role.add_to_policy(
+     #     _iam.PolicyStatement(
+     #         actions = ["s3:Get*"],
+     #         resources = [f"arn:aws:s3:::{bucket_name}/*"]
+     #         )
+     #     )
+
+
+
      #lambda_role.add_to_policy(
      #    aws_iam.PolicyStatement(
      #        effect= aws_iam.Effect.ALLOW,
