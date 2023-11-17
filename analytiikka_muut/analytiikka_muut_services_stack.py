@@ -13,91 +13,6 @@ from constructs import Construct
 
 from analytiikka_muut.helper_lambda import *
 
-def foo():
-     print("foo")
-
-
-def create_lambda_role(self, role_name: str):
-     # Yhteinen rooli
-     lambda_role = aws_iam.Role(self, 
-                                id = role_name, 
-                                role_name = role_name,
-                                assumed_by= ServicePrincipal("lambda.amazonaws.com"),
-                                managed_policies=[
-                                    # logs & S3
-                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaExecute"),
-                                    # logs & vpc 
-                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
-                                ]
-     )
-
-     lambda_role.add_to_policy(
-         aws_iam.PolicyStatement(
-             effect= aws_iam.Effect.ALLOW,
-             actions = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
-             resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
-         )
-     )
-
-     # lambda_role.add_to_policy(
-     #     _iam.PolicyStatement(
-     #         actions = ["s3:Get*"],
-     #         resources = [f"arn:aws:s3:::{bucket_name}/*"]
-     #         )
-     #     )
-
-
-
-     #lambda_role.add_to_policy(
-     #    aws_iam.PolicyStatement(
-     #        effect= aws_iam.Effect.ALLOW,
-     #        actions = ['ssm:GetParameter'],
-     #        resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
-     #    )
-     #)
-     
-     
-     #                           ,
-     #                           inline_policies={
-     #                               "SecretsManager": aws_iam.PolicyDocument(
-     #                                   statements=[aws_iam.PolicyStatement(
-     #                                       effect= aws_iam.Effect.ALLOW,
-     #                                       actions = [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
-     #                                       resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*']
-     #                                   )]
-     #                               ),
-     #                               "ParameterStore": aws_iam.PolicyDocument(
-     #                                   statements=[aws_iam.PolicyStatement(
-     #                                       effect= aws_iam.Effect.ALLOW,
-     #                                       actions = ['ssm:GetParameter'],
-     #                                       resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*']
-     #                                   )]
-     #                               )
-     #                                
-     #                           }
-   
-     # lambda_role.add_to_policy(
-     #     aws_iam.PolicyStatement(
-     #         effect= aws_iam.Effect.ALLOW,
-     #         actions = ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-     #         resources = ['arn:aws:logs:*:*:*'],
-     #     )
-     # )
-     return(lambda_role)
-
-
-
-def create_lambda_securitygroup(self, group_name: str, vpc: any):
-     print(group_name)
-
-     g = aws_ec2.SecurityGroup(self, id = group_name, vpc = vpc, security_group_name= group_name)
-
-     return(g)
-
-
-
-
-
 
 
 
@@ -122,7 +37,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         properties = self.node.try_get_context(environment)
         target_bucket = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
-        # lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
+        lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
         # glue_role_name = self.node.try_get_context('glue_role_name')
         # glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
@@ -131,22 +46,16 @@ class AnalytiikkaMuutServicesStack(Stack):
         print(f"services {environment}: region = '{self.region}'")
         # print(f"services {environment}: properties = '{properties}'")
 
+
         vpcname = properties["vpc_name"]
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
+        # print(f"services {environment}: vpc = '{vpc}'")
         
-
-        # subnets = selection.subnets
-
-        #lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
-        #lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
+        # lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
+        # lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
 
         #glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
         #glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
-
-        # print(f"services {environment}: vpc = '{vpc}'")
-        # print(f"services {environment}: subnets = '{subnets}'")
-
-        lambda_role = create_lambda_role(self, lambda_role_name)
 
 
 
