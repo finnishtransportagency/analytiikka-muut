@@ -51,8 +51,8 @@ class AnalytiikkaMuutServicesStack(Stack):
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
         # print(f"services {environment}: vpc = '{vpc}'")
         
-        # lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
-        # lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
+        lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
+        lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
 
         #glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
         #glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
@@ -72,22 +72,23 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
         # Lambda: testi 1
-        # l1 = PythonLambdaFunction(self,
-        #                      id = "testi1",
-        #                      path = "lambda/testi1",
-        #                      handler = "testi1.lambda_handler",
-        #                      role = lambda_role,
-        #                      props = LambdaProperties(vpc = vpc,
-        #                                               timeout = 2, 
-        #                                               environment = {
-        #                                                   "target_bucket": target_bucket
-        #                                               },
-        #                                               tags = [
-        #                                                   { "testitag": "jotain" },
-        #                                                   { "toinen": "arvo" }
-        #                                               ]
-        #                                              )
-        #                     )
+        l1 = PythonLambdaFunction(self,
+                             id = "testi1",
+                             path = "lambda/testi1",
+                             handler = "testi1.lambda_handler",
+                             role = lambda_role,
+                             props = LambdaProperties(vpc = vpc,
+                                                      timeout = 2, 
+                                                      environment = {
+                                                          "target_bucket": target_bucket
+                                                      },
+                                                      tags = [
+                                                          { "testitag": "jotain" },
+                                                          { "toinen": "arvo" }
+                                                      ],
+                                                      securitygroups = [ lambda_securitygroup ]
+                                                     )
+                            )
 # 
         # # Lambda: servicenow testi
         # l2 = JavaLambdaFunction(self,
