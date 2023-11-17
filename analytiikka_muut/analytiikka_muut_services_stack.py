@@ -25,29 +25,31 @@ def create_lambda_role(self, role_name: str):
                                 assumed_by= ServicePrincipal("lambda.amazonaws.com"),
                                 managed_policies=[
                                     # logs & S3
-                                    aws_iam.ManagedPolicy.from_managed_policy_arn(self, id = "AWSLambdaExecute",
+                                    aws_iam.ManagedPolicy.from_managed_policy_arn(id = "AWSLambdaExecute",
                                                                                   managed_policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"),
                                      # from_aws_managed_policy_name("AWSLambdaExecute"),
                                     # logs & vpc 
-                                    aws_iam.ManagedPolicy.from_managed_policy_arn(self, id = "AWSLambdaVPCAccessExecutionRole",
+                                    aws_iam.ManagedPolicy.from_managed_policy_arn(id = "AWSLambdaVPCAccessExecutionRole",
                                                                                   managed_policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
                                     #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
                                 ]
      )
-     lambda_role.add_to_policy(
-         aws_iam.PolicyStatement(
-             effect= aws_iam.Effect.ALLOW,
-             actions = ['secretsmanager:GetSecretValue'],
-             resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
-         )
-     )
-     lambda_role.add_to_policy(
-         aws_iam.PolicyStatement(
-             effect= aws_iam.Effect.ALLOW,
-             actions = ['ssm:GetParameter'],
-             resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
-         )
-     )
+     #lambda_role.add_to_policy(
+     #    aws_iam.PolicyStatement(
+     #        effect= aws_iam.Effect.ALLOW,
+     #        actions = ['secretsmanager:GetSecretValue'],
+     #        resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+     #    )
+     #)
+     #lambda_role.add_to_policy(
+     #    aws_iam.PolicyStatement(
+     #        effect= aws_iam.Effect.ALLOW,
+     #        actions = ['ssm:GetParameter'],
+     #        resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
+     #    )
+     #)
+     
+     
      #                           ,
      #                           inline_policies={
      #                               "SecretsManager": aws_iam.PolicyDocument(
@@ -75,6 +77,18 @@ def create_lambda_role(self, role_name: str):
      #     )
      # )
      return(lambda_role)
+
+
+
+def create_lambda_securitygroup(self, group_name: str, vpc: any):
+     print(group_name)
+
+     g = aws_ec2.SecurityGroup(self, id = group_name, vpc = vpc, security_group_name= group_name)
+
+     return(g)
+
+
+
 
 
 
