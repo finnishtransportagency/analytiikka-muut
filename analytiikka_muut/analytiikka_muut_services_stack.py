@@ -69,7 +69,7 @@ class AnalytiikkaMuutServicesStack(Stack):
 
                                    ]
         )
-        
+
         #,
         #                            inline_policies=[
         #                                aws_iam.PolicyStatement(
@@ -122,22 +122,22 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
         # Lambda: testi 1
-        l1 = PythonLambdaFunction(self,
-                             id = "testi1",
-                             path = "lambda/testi1",
-                             handler = "testi1.lambda_handler",
-                             role = lambda_role,
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout = 2, 
-                                                      environment = {
-                                                          "target_bucket": target_bucket
-                                                      },
-                                                      tags = [
-                                                          { "testitag": "jotain" },
-                                                          { "toinen": "arvo" }
-                                                      ]
-                                                     )
-                            )
+        # l1 = PythonLambdaFunction(self,
+        #                      id = "testi1",
+        #                      path = "lambda/testi1",
+        #                      handler = "testi1.lambda_handler",
+        #                      role = lambda_role,
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout = 2, 
+        #                                               environment = {
+        #                                                   "target_bucket": target_bucket
+        #                                               },
+        #                                               tags = [
+        #                                                   { "testitag": "jotain" },
+        #                                                   { "toinen": "arvo" }
+        #                                               ]
+        #                                              )
+        #                     )
 # 
         # # Lambda: servicenow testi
         # l2 = JavaLambdaFunction(self,
