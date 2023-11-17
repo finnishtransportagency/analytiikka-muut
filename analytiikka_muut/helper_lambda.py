@@ -125,35 +125,38 @@ class JavaLambdaFunction(Construct):
                  ):
         super().__init__(scope, id)
 
-        func_code = aws_lambda.Code.from_asset(path = path,
-                                               bundling = {
-                                                   "command": [
-                                                       "bash",
-                                                       "-c",
-                                                       f"mvn clean install && cp ./target/{jarname} /asset-output/",
-                                                    ],
-                                                    "image": aws_lambda.Runtime.JAVA_11.bundling_image,
-                                                    "user": "root",
-                                                    "output_type": BundlingOutput.ARCHIVED
-                                               }
-                                              )
+        print("JAVA LAMBDA HELPER NOT IMPLEMENTED")
 
-        self.function = aws_lambda.Function(self,
-                                            id,
-                                            code = func_code,
-                                            vpc = props.vpc,
-                                            vpc_subnets = props.subnets,
-                                            security_groups = props.securitygroups,
-                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-                                            handler = handler,
-                                            runtime = aws_lambda.Runtime.JAVA_11,
-                                            timeout = props.timeout,
-                                            memory_size = props.memory,
-                                            environment = props.environment,
-                                            role = role
-                                           )
-
-        add_tags(self.function, props.tags)
+        # func_code = aws_lambda.Code.from_asset(path = path,
+        #                                        bundling = {
+        #                                            "command": [
+        #                                                "bash",
+        #                                                "-c",
+        #                                                f"mvn clean install && cp ./target/{jarname} /asset-output/",
+        #                                             ],
+        #                                             "image": aws_lambda.Runtime.JAVA_11.bundling_image,
+        #                                             "user": "root",
+        #                                             "output_type": BundlingOutput.ARCHIVED
+        #                                        }
+        #                                       )
+        # 
+        # self.function = aws_lambda.Function(self,
+        #                                     id,
+        #                                     function_name = id,
+        #                                     code = func_code,
+        #                                     vpc = props.vpc,
+        #                                     vpc_subnets = props.subnets,
+        #                                     security_groups = props.securitygroups,
+        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+        #                                     handler = handler,
+        #                                     runtime = aws_lambda.Runtime.JAVA_11,
+        #                                     timeout = props.timeout,
+        #                                     memory_size = props.memory,
+        #                                     environment = props.environment,
+        #                                     role = role
+        #                                    )
+        # 
+        # add_tags(self.function, props.tags)
 
 
 
@@ -172,34 +175,36 @@ class NodejsLambdaFunction(Construct):
                  ):
         super().__init__(scope, id)
 
-        func_code = aws_lambda.Code.from_asset(path = path,
-                                               bundling = {
-                                                   "command": [
-                                                       "bash",
-                                                       "-c",
-                                                       "npm ci",
-                                                    ],
-                                                    "image": aws_lambda.Runtime.NODEJS_18_X.bundling_image,
-                                                    "user": "root"
-                                               }
-                                              )
+        print("NODEJS LAMBDA HELPER NOT IMPLEMENTED")
 
-        self.function = aws_lambda.Function(self,
-                                            id,
-                                            code = func_code,
-                                            vpc = props.vpc,
-                                            vpc_subnets = props.subnets,
-                                            security_groups = props.securitygroups,
-                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-                                            handler = handler,
-                                            runtime = aws_lambda.Runtime.NODEJS_18_X,
-                                            timeout = props.timeout,
-                                            memory_size = props.memory,
-                                            environment = props.environment,
-                                            role = role
-                                           )
-
-        add_tags(self.function, props.tags)
+        # func_code = aws_lambda.Code.from_asset(path = path,
+        #                                        bundling = {
+        #                                            "command": [
+        #                                                "bash",
+        #                                                "-c",
+        #                                                "npm ci",
+        #                                             ],
+        #                                             "image": aws_lambda.Runtime.NODEJS_18_X.bundling_image,
+        #                                             "user": "root"
+        #                                        }
+        #                                       )
+        # 
+        # self.function = aws_lambda.Function(self,
+        #                                     id,
+        #                                     code = func_code,
+        #                                     vpc = props.vpc,
+        #                                     vpc_subnets = props.subnets,
+        #                                     security_groups = props.securitygroups,
+        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+        #                                     handler = handler,
+        #                                     runtime = aws_lambda.Runtime.NODEJS_18_X,
+        #                                     timeout = props.timeout,
+        #                                     memory_size = props.memory,
+        #                                     environment = props.environment,
+        #                                     role = role
+        #                                    )
+        # 
+        # add_tags(self.function, props.tags)
 
 
 
