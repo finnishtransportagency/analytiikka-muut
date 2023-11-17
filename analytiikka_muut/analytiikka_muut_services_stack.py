@@ -63,26 +63,28 @@ class AnalytiikkaMuutServicesStack(Stack):
                                    assumed_by= ServicePrincipal("lambda.amazonaws.com"),
                                    managed_policies=[
                                        # logs & S3
-                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaExecute"),
+                                       aws_iam.ManagedPolicy.from_managed_policy_arn("arn:aws:iam::aws:policy/AWSLambdaExecute"),
+                                        # from_aws_managed_policy_name("AWSLambdaExecute"),
                                        # logs & vpc 
-                                       aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
-
+                                       aws_iam.ManagedPolicy.from_managed_policy_arn("arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole")
+                                       #from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole")
+                                   ],
+                                   inline_policies=[
+                                       aws_iam.PolicyStatement(
+                                           effect= aws_iam.Effect.ALLOW,
+                                           actions = [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+                                           resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
+                                       ),
+                                       aws_iam.PolicyStatement(
+                                           effect= aws_iam.Effect.ALLOW,
+                                           actions = ['ssm:GetParameter'],
+                                           resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
+                                       )
                                    ]
+
         )
 
         #,
-        #                            inline_policies=[
-        #                                aws_iam.PolicyStatement(
-        #                                    effect= aws_iam.Effect.ALLOW,
-        #                                    actions = ['secretsmanager:GetSecretValue'],
-        #                                    resources = ['arn:aws:secretsmanager:${self.region}:${self.account}:secret:*'],
-        #                                ),
-        #                                aws_iam.PolicyStatement(
-        #                                    effect= aws_iam.Effect.ALLOW,
-        #                                    actions = ['ssm:GetParameter'],
-        #                                    resources = ['arn:aws:ssm:${self.region}:${self.account}:parameter/*'],
-        #                                )
-        #                            ]
         #                           )
         
         # lambda_role.add_to_policy(
