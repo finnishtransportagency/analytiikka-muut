@@ -37,5 +37,10 @@ class AnalytiikkaMuutStage(Stage):
                                                       )
         
         Tags.of(services_stack).add("Environment", environment, apply_to_launched_instances = True, priority = 300)
+        _tags_lst = self.node.try_get_context("tags")
+        if _tags_lst:
+            for _t in _tags_lst:
+                for k, v in _t.items():
+                    Tags.of(services_stack).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 

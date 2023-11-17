@@ -71,6 +71,7 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
         # Lambda: testi 1
+        # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
         l1 = PythonLambdaFunction(self,
                              id = "testi1",
                              path = "lambda/testi1",
@@ -81,13 +82,15 @@ class AnalytiikkaMuutServicesStack(Stack):
                              props = LambdaProperties(vpc = vpc,
                                                       timeout = 2, 
                                                       environment = {
-                                                          "target_bucket": target_bucket
+                                                          "target_bucket": target_bucket,
+                                                          "dummy_input_value": "10001101101"
                                                       },
                                                       tags = [
                                                           { "testitag": "jotain" },
                                                           { "toinen": "arvo" }
                                                       ],
-                                                      securitygroups = [ lambda_securitygroup ]
+                                                      securitygroups = [ lambda_securitygroup ],
+                                                      schedule = "15 10 1 * ? *"
                                                      )
                             )
 # 
