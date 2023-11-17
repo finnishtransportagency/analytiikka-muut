@@ -125,7 +125,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         # print(f"services {environment}: vpc = '{vpc}'")
         # print(f"services {environment}: subnets = '{subnets}'")
 
-
+        lambda_role = create_lambda_role(self, lambda_role_name)
 
 
 
