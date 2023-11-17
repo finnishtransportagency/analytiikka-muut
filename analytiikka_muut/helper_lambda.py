@@ -1,6 +1,5 @@
 from aws_cdk import (
     aws_lambda,
-    aws_lambda_python_alpha as _lambdapython,
     aws_logs,
     Duration,
     BundlingOutput,
@@ -8,6 +7,8 @@ from aws_cdk import (
     aws_ec2,
     Tags
 )
+
+from aws_cdk import aws_lambda_python_alpha as _lambdapython
 
 from constructs import Construct
 
