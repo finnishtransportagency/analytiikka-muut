@@ -58,7 +58,7 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
         # glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
-        ## glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
+        glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
 
         # glue_script_bucket = aws_s3.Bucket(self,
         #                                    id = glue_script_bucket_name,
@@ -152,17 +152,13 @@ class AnalytiikkaMuutServicesStack(Stack):
                             )
 
 
-        g1 = PythonGlueJob(self,
+        g1 = PythonSparkGlueJob(self,
                  id = "testi3", 
-                 script_bucket_name = "dummy",
-                 path = "glue/testi3",
-                 type = "glueetl",
-                 timeout = 5,
-                 description = "Glue jobin kuvaus",
-                 worker = "G.1X",
-                 version = "4.0",
-                 role = glue_role_name,
+                 path = "glue/testi3/testi3.py",
+                 role = glue_role,
                  tags = None,
                  arguments = None,
-                 connections = None
+                 connection_name = None,
+                 enable_spark_ui = False
         )
+
