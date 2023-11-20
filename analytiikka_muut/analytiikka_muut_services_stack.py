@@ -99,7 +99,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Lambda: servicenow testi
         l2 = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
-                           description = "ServiceNow haku taululle sn_customerservice_case"
+                           description = "ServiceNow haku taululle sn_customerservice_case",
                            path = "lambda/servicenow",
                            jarname = "servicenow-to-s3-lambda-1.0.0.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
