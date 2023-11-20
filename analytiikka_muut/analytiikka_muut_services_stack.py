@@ -98,7 +98,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                       ],
                                                       securitygroups = [ lambda_securitygroup ],
                                                       schedule = {
-                                                          "min": "0",
+                                                          "minute": "0",
                                                           "hour": "10",
                                                           "day": "20",
                                                           "month": "*",
