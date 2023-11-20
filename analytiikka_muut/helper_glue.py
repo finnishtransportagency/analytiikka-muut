@@ -129,7 +129,7 @@ class PythonSparkGlueJob(Construct):
                                            description = description,
                                            default_arguments = arguments,
                                            role = role,
-                                           # worker_type = aws_glue_alpha.WorkerType.G_1_X
+                                           worker_type = aws_glue_alpha.WorkerType.G_1_X,
                                            worker_count = 2,
                                            max_retries = 0,
                                            timeout = timeout_mins,
