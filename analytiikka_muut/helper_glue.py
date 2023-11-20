@@ -117,7 +117,7 @@ class PythonSparkGlueJob(Construct):
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
-                                           spark_uI = aws_glue_alpha.SparkUIProps(
+                                           spark_ui = aws_glue_alpha.SparkUIProps(
                                                enabled = enable_spark_ui
                                            ),
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
