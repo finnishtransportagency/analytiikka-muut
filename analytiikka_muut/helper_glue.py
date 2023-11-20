@@ -134,7 +134,6 @@ class PythonSparkGlueJob(Construct):
                                            max_retries = 0,
                                            timeout = timeout_mins,
                                            max_concurrent_runs = 2
-
                                            )
 
         add_tags(self.job, tags)
@@ -173,3 +172,61 @@ class PythonSparkGlueJob(Construct):
                                                start_on_creation = False
                                               )
             
+
+
+
+class PythonShellGlueJob(Construct):
+
+    def __init__(self,
+                 scope: Construct, 
+                 id: str, 
+                 path: str,
+                 timeout: any,
+                 description: str = None,
+                 worker: str = None,
+                 version: str = None,
+                 role: aws_iam.Role = None,
+                 tags: dict = None,
+                 arguments: dict = None
+                 ):
+        super().__init__(scope, id)
+
+        if version == "" or version == None:
+            version = "4.0"
+
+        # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
+        # connections = aws_glue.CfnJob.ConnectionsListProperty(connections=["connections"])
+        # execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
+
+        
+        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
+
+        print(f"asset path = '{script_path}'")
+
+        if timeout:
+            timeout_mins = Duration.minutes(timeout)
+
+
+        self.job = aws_glue_alpha.Job(self, 
+                                           id = id,
+                                           job_name = id,
+                                           executable = aws_glue_alpha.JobExecutable.python_shell(
+                                               glue_version = aws_glue_alpha.GlueVersion.of(version),
+                                               python_version = aws_glue_alpha.PythonVersion.THREE,
+                                               script = aws_glue_alpha.Code.from_asset(script_path),
+                                               runtime = aws_glue_alpha.Runtime.of("3.11")
+                                           ),
+                                           description = description,
+                                           default_arguments = arguments,
+                                           role = role,
+                                           worker_type = aws_glue_alpha.WorkerType.of(worker),
+                                           worker_count = 2,
+                                           max_retries = 0,
+                                           timeout = timeout_mins,
+                                           max_concurrent_runs = 2
+
+                                           )
+
+        add_tags(self.job, tags)
+
+

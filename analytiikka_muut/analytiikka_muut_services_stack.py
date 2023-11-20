@@ -157,7 +157,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                  path = "glue/testi3/testi3.py",
                  timeout = 1,
                  description = "Glue jobin kuvaus",
-                 worker = "G1_X",
+                 worker = "G_1_X",
                  version = "4.0",
                  role = glue_role,
                  tags = None,
