@@ -69,7 +69,7 @@ class PythonGlueJob(Construct):
             connectionlist = aws_glue.CfnJob.ConnectionsListProperty(connections)
         
         script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
-        script_asset = aws_s3_assets.Asset(self, "GlueScriptAsset", script_path)
+        script_asset = aws_s3_assets.Asset(self, f"{id}-asset", path = script_path)
 
         print(f"asset path = '{script_asset.asset_path}'")
 
