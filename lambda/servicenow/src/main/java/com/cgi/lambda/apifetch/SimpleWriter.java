@@ -9,8 +9,8 @@ public interface SimpleWriter {
 	public FileSpec makeDataFileName(String sourceName, String dataYearMonth);
 
 	
-	public boolean writeManifestFile(FileSpec outputFile, String data);
+	//public boolean writeManifestFile(FileSpec outputFile, String data);
 
-	public FileSpec makeManifestFileName(FileSpec dataFile);
+	//public FileSpec makeManifestFileName(FileSpec dataFile);
 	
 }

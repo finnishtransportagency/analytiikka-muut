@@ -22,7 +22,7 @@ public class ServiceNowApiFetch {
 	
 	private SimpleLogger logger = null;
 	private SimpleWriter writer = null;
-	private ManifestCreator manifestCreator = null;
+	//private ManifestCreator manifestCreator = null;
 	
 	private String username = null;
 	private String password = null;
@@ -60,9 +60,9 @@ public class ServiceNowApiFetch {
 	}
 
 
-	public void setManifestCreator(ManifestCreator manifestCreator) {
-		this.manifestCreator = manifestCreator;
-	}
+	//public void setManifestCreator(ManifestCreator manifestCreator) {
+	//	this.manifestCreator = manifestCreator;
+	//}
 	
 	
 	/**
@@ -181,12 +181,13 @@ public class ServiceNowApiFetch {
 						int size = enrichmentCenter.enrichedList.size();
 						for (int i = 0; i < size; i++) {
 							FileSpec outputFile = writer.makeDataFileName(this.sourceName, dataYearMonth);
-							if (writer.writeDataFile(outputFile, enrichmentCenter.enrichedList.get(i).toString())) {
-								if (this.manifestCreator != null) {
-									boolean result = this.manifestCreator.createManifest(outputFile);
-									if (!result) return false;
-								}
-							}
+							//if (writer.writeDataFile(outputFile, enrichmentCenter.enrichedList.get(i).toString())) {
+							//	if (this.manifestCreator != null) {
+							//		boolean result = this.manifestCreator.createManifest(outputFile);
+							//		if (!result) return false;
+							//	}
+							//}
+							writer.writeDataFile(outputFile, enrichmentCenter.enrichedList.get(i).toString());
 						}
 						this.logger.log("Write transformed output end. Processed parts = " + size);
 					}
@@ -194,12 +195,13 @@ public class ServiceNowApiFetch {
 				} else {
 					this.logger.log("Write output start");
 					FileSpec outputFile = writer.makeDataFileName(this.sourceName, dataYearMonth);
-					if (writer.writeDataFile(outputFile, data)) {
-						if (this.manifestCreator != null) {
-							boolean result = this.manifestCreator.createManifest(outputFile);
-							if (!result) return false;
-						}
-					}
+					//if (writer.writeDataFile(outputFile, data)) {
+					//	if (this.manifestCreator != null) {
+					//		boolean result = this.manifestCreator.createManifest(outputFile);
+					//		if (!result) return false;
+					//	}
+					//}
+					writer.writeDataFile(outputFile, data);
 					this.logger.log("Write output end");
 				}
 			} else {

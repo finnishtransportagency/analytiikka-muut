@@ -81,29 +81,28 @@ class PythonGlueJob(Construct):
  
 
         self.job = aws_glue.CfnJob(self,
-                                        name = id,
-                                        description = description,
-                                        command = {
-                                            "name": type,
-                                            "python_version": "3",
-                                            "script_location": script_asset.asset_path
-                                        },
-                                        role = role,
-                                        timeout = timeout,
-
-                                        default_arguments = arguments,
-                                        connections = connectionlist,
-                                        execution_property = aws_glue.CfnJob.ExecutionPropertyProperty(
-                                            max_concurrent_runs=2
-                                        ),
-
-                                        # HUOM: max_capacity tai worker type jne. Ei molempia
-                                        #  max_capacity=None,
-                                        glue_version = version,
-                                        worker_type = worker,
-                                        number_of_workers = 2,
-                                        max_retries = 0
-                                        )
+                                   id = id,
+                                   name = id,
+                                   description = description,
+                                   command = {
+                                       "name": type,
+                                       "python_version": "3",
+                                       "script_location": script_asset.asset_path
+                                   },
+                                   role = role,
+                                   timeout = timeout,
+                                   default_arguments = arguments,
+                                   connections = connectionlist,
+                                   execution_property = aws_glue.CfnJob.ExecutionPropertyProperty(
+                                       max_concurrent_runs=2
+                                   ),
+                                   # HUOM: max_capacity tai worker type jne. Ei molempia
+                                   #  max_capacity=None,
+                                   glue_version = version,
+                                   worker_type = worker,
+                                   number_of_workers = 2,
+                                   max_retries = 0
+                                   )
         add_tags(self.job, tags)
 
 

@@ -42,10 +42,10 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 	private String outputPath = null;
 	private String outputFileName = null;
 
-	private String manifestBucket = null;
-	private String manifestPath = null;
-	private String manifestArn = null;
-	private String manifestTemplate = "{\"entries\":[],\"columns\":[\"DATA\"]}";
+	//private String manifestBucket = null;
+	//private String manifestPath = null;
+	//private String manifestArn = null;
+	//private String manifestTemplate = "{\"entries\":[],\"columns\":[\"DATA\"]}";
 
 	private String charset = "UTF-8";
 
@@ -55,18 +55,20 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 
 	private String fullscans = "";
 	
-	private String runYearMonth = "";
-	private boolean includeYearMonth = true;
+	private String pathYearMonthDay = "";
+	//private String runYearMonth = "";
+	//private boolean includeYearMonth = true;
 
 	
 	@Override
 	public String handleRequest(Map<String, Object> input, Context context) {
 
-		this.runYearMonth = DateTime.now().toString("YYYY-MM");
-		String t = System.getenv("add_path_ym");
-		if ("0".equals(t) || "false".equalsIgnoreCase(t)) {
-			this.includeYearMonth = false;
-		}
+		this.pathYearMonthDay = DateTime.now().toString("YYYY/MM/DD");
+		//this.runYearMonth = DateTime.now().toString("YYYY-MM");
+		//String t = System.getenv("add_path_ym");
+		//if ("0".equals(t) || "false".equalsIgnoreCase(t)) {
+		//	this.includeYearMonth = false;
+		//}
 		
 		this.context = context;
 		this.logger = new SimpleLambdaLogger(this.context);
@@ -88,9 +90,9 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		this.outputFileName = System.getenv("output_filename");
 
 		// Manifest
-		this.manifestBucket = System.getenv("manifest_bucket"); 
-		this.manifestPath = System.getenv("manifest_path"); 
-		this.manifestArn = System.getenv("manifest_arn");
+		//this.manifestBucket = System.getenv("manifest_bucket"); 
+		//this.manifestPath = System.getenv("manifest_path"); 
+		//this.manifestArn = System.getenv("manifest_arn");
 
 		// Koordinaattimuunnos
 		String inCoordinateTransform = System.getenv("coordinate_transform");
@@ -190,23 +192,23 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 			outputSplitLimit = 1500;
 		}
 
-		ManifestCreator manifestCreator = null;
+		//ManifestCreator manifestCreator = null;
 
-		// HUOM: template on vakio koska taulusta riippumatta vain tallennetaan json eiklä parsita täällä
-		if (!this.manifestArn.isEmpty() && !this.manifestBucket.isEmpty() && !this.manifestPath.isEmpty()) {
-			manifestCreator = new ManifestCreator(this.logger, this);
-			manifestCreator.setTemplate(manifestTemplate);
-			this.logger.log("Manifest resources defined and template found. Generate manifest(s) for data files.");
-		} else {
-			this.logger.log("Manifest resources are not defined. Do not generate manifest(s).");
-		}
+		// HUOM: template on vakio koska taulusta riippumatta vain tallennetaan json eikä parsita täällä
+		//if (!this.manifestArn.isEmpty() && !this.manifestBucket.isEmpty() && !this.manifestPath.isEmpty()) {
+		//	manifestCreator = new ManifestCreator(this.logger, this);
+		//	manifestCreator.setTemplate(manifestTemplate);
+		//	this.logger.log("Manifest resources defined and template found. Generate manifest(s) for data files.");
+		//} else {
+		//	this.logger.log("Manifest resources are not defined. Do not generate manifest(s).");
+		//}
 
 		// ServiceNow api prosessointi
 		ServiceNowApiFetch api = new ServiceNowApiFetch(this.logger, this, username, password, url,
 				queryStringDefault, queryStringDate, this.argOffset, this.argLimit, increment, outputSplitLimit,
 				coordinateTransform, this.outputFileName);
 		
-		api.setManifestCreator(manifestCreator);
+		//api.setManifestCreator(manifestCreator);
 		
 		boolean result = api.process(startDate, endDate);
 		if (!result) {
@@ -286,13 +288,14 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		FileSpec retval = new FileSpec();
 		retval.bucket = this.outputBucket;
 		retval.path = this.outputPath;
-		if (this.includeYearMonth) {
-			if (dataYearMonth != null) {
-				retval.path = this.outputPath + dataYearMonth + "/";
-			} else {
-				retval.path = this.outputPath + this.runYearMonth + "/";
-			}
-		}
+		//if (this.includeYearMonth) {
+		//	if (dataYearMonth != null) {
+		//		retval.path = this.outputPath + dataYearMonth + "/";
+		//	} else {
+		//		retval.path = this.outputPath + this.runYearMonth + "/";
+		//	}
+		//}
+		retval.path += this.pathYearMonthDay + "/";
 		retval.timestamp = "" + DateTime.now().getMillis();
 		retval.sourceName =  sourceName;
 		retval.fullscanned = this.isFullscan(sourceName);
@@ -359,6 +362,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 	 * 
 	 * 
 	 */
+	/*
 	@Override
 	public boolean writeManifestFile(FileSpec outputFile, String data) {
 		boolean result = false;
@@ -384,7 +388,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 
 	    	Collection<Grant> grantCollection = new ArrayList<Grant>();
 			grantCollection.add( new Grant(new CanonicalGrantee(s3Client.getS3AccountOwner().getId()), Permission.FullControl));
-	        grantCollection.add( new Grant(new CanonicalGrantee(this.manifestArn), Permission.FullControl));
+	        //grantCollection.add( new Grant(new CanonicalGrantee(this.manifestArn), Permission.FullControl));
 	        
 			AccessControlList objectAcl = new AccessControlList();
             objectAcl.getGrantsAsList().clear();
@@ -411,7 +415,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		logger.log("Write manifest, file name = '" + fullPath + "' => result = " + result);
 		return result;
 	}
-
+	*/
 	
 	
 	
@@ -424,6 +428,8 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 	 * 
 	 */
 	// s3://<manifestBucket>/<manifestPath>/manifest-table.<outputFileName>.<now>.batch.<now>.fullscanned.false.json.json
+
+	/*
 	@Override
 	public FileSpec makeManifestFileName(FileSpec dataFile) {
 		FileSpec retval = new FileSpec();
@@ -435,7 +441,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		retval.fileName = "manifest-table." + retval.sourceName + "." + retval.timestamp + ".batch." + retval.timestamp + ".fullscanned." + retval.fullscanned + ".json.json";
 		return retval; 
 	}
-
+	*/
 
 
 
