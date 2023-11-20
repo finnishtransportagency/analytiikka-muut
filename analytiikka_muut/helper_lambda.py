@@ -101,7 +101,13 @@ class PythonLambdaFunction(Construct):
         if props.schedule != None and props.schedule != "":
             rule = aws_events.Rule(self,
                                    f"{id}-schedule",
-                                   schedule = aws_events.Schedule.cron(props.schedule)
+                                   schedule = aws_events.Schedule.cron(minute= props.schedule["minute"],
+                                                                       hour = props.schedule["minute"],
+                                                                       day = props.schedule["day"],
+                                                                       month = props.schedule["month"],
+                                                                       week_day = props.schedule["week_day"],
+                                                                       year = props.schedule["year"]
+                                                                       )
             )
             rule.add_target(aws_events_targets.LambdaFunction(self.function))
 
