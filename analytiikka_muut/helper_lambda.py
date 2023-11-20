@@ -29,7 +29,7 @@ PYTHON OK
 Lambda parametrit
 """
 class LambdaProperties:
-    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None, schedule: str = None):
+    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None, schedule: dict = None):
         self.vpc = vpc
         self.subnets = None
         if vpc != None:
@@ -101,7 +101,7 @@ class PythonLambdaFunction(Construct):
         if props.schedule != None and props.schedule != "":
             rule = aws_events.Rule(self,
                                    f"{id}-schedule",
-                                   schedule = aws_events.Schedule.expression(props.schedule)
+                                   schedule = aws_events.Schedule.cron(props.schedule)
             )
             rule.add_target(aws_events_targets.LambdaFunction(self.function))
 
