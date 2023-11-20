@@ -54,6 +54,18 @@ def add_tags(function, tags):
                 Tags.of(function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
+"""
+Lisää ajastus
+"""
+def add_schedule(self, function, schedule):
+    if schedule != None and schedule != "":
+        rule = aws_events.Rule(self,
+                               f"{id}-schedule",
+                               schedule = aws_events.Schedule.expression(f"cron({schedule})")
+        )
+        rule.add_target(aws_events_targets.LambdaFunction(function))
+
+
 
 
 
@@ -97,13 +109,14 @@ class PythonLambdaFunction(Construct):
             )
         
         add_tags(self.function, props.tags)
+        add_schedule(self, self.function, props.schedule)
 
-        if props.schedule != None and props.schedule != "":
-            rule = aws_events.Rule(self,
-                                   f"{id}-schedule",
-                                   schedule = aws_events.Schedule.expression(f"cron({props.schedule})")
-            )
-            rule.add_target(aws_events_targets.LambdaFunction(self.function))
+        # if props.schedule != None and props.schedule != "":
+        #     rule = aws_events.Rule(self,
+        #                            f"{id}-schedule",
+        #                            schedule = aws_events.Schedule.expression(f"cron({props.schedule})")
+        #     )
+        #     rule.add_target(aws_events_targets.LambdaFunction(self.function))
 
 
 
@@ -127,36 +140,37 @@ class JavaLambdaFunction(Construct):
 
         print("JAVA LAMBDA HELPER NOT IMPLEMENTED")
 
-        # func_code = aws_lambda.Code.from_asset(path = path,
-        #                                        bundling = {
-        #                                            "command": [
-        #                                                "bash",
-        #                                                "-c",
-        #                                                f"mvn clean install && cp ./target/{jarname} /asset-output/",
-        #                                             ],
-        #                                             "image": aws_lambda.Runtime.JAVA_11.bundling_image,
-        #                                             "user": "root",
-        #                                             "output_type": BundlingOutput.ARCHIVED
-        #                                        }
-        #                                       )
-        # 
-        # self.function = aws_lambda.Function(self,
-        #                                     id,
-        #                                     function_name = id,
-        #                                     code = func_code,
-        #                                     vpc = props.vpc,
-        #                                     vpc_subnets = props.subnets,
-        #                                     security_groups = props.securitygroups,
-        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-        #                                     handler = handler,
-        #                                     runtime = aws_lambda.Runtime.JAVA_11,
-        #                                     timeout = props.timeout,
-        #                                     memory_size = props.memory,
-        #                                     environment = props.environment,
-        #                                     role = role
-        #                                    )
-        # 
-        # add_tags(self.function, props.tags)
+        func_code = aws_lambda.Code.from_asset(path = path,
+                                               bundling = {
+                                                   "command": [
+                                                       "bash",
+                                                       "-c",
+                                                       f"mvn clean install && cp ./target/{jarname} /asset-output/",
+                                                    ],
+                                                    "image": aws_lambda.Runtime.JAVA_11.bundling_image,
+                                                    "user": "root",
+                                                    "output_type": BundlingOutput.ARCHIVED
+                                               }
+                                              )
+        
+        self.function = aws_lambda.Function(self,
+                                            id,
+                                            function_name = id,
+                                            code = func_code,
+                                            vpc = props.vpc,
+                                            vpc_subnets = props.subnets,
+                                            security_groups = props.securitygroups,
+                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+                                            handler = handler,
+                                            runtime = aws_lambda.Runtime.JAVA_11,
+                                            timeout = props.timeout,
+                                            memory_size = props.memory,
+                                            environment = props.environment,
+                                            role = role
+                                           )
+        
+        add_tags(self.function, props.tags)
+        add_schedule(self, self.function, props.schedule)
 
 
 
