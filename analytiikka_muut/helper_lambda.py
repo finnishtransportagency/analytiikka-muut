@@ -130,6 +130,7 @@ class JavaLambdaFunction(Construct):
     def __init__(self,
                  scope: Construct, 
                  id: str, 
+                 description: str,
                  path: str,
                  jarname: str,
                  handler: str,
@@ -137,8 +138,6 @@ class JavaLambdaFunction(Construct):
                  props: LambdaProperties
                  ):
         super().__init__(scope, id)
-
-        print("JAVA LAMBDA HELPER NOT IMPLEMENTED")
 
         func_code = aws_lambda.Code.from_asset(path = path,
                                                bundling = {
@@ -156,6 +155,7 @@ class JavaLambdaFunction(Construct):
         self.function = aws_lambda.Function(self,
                                             id,
                                             function_name = id,
+                                            description = description,
                                             code = func_code,
                                             vpc = props.vpc,
                                             vpc_subnets = props.subnets,
@@ -184,42 +184,31 @@ class NodejsLambdaFunction(Construct):
                  id: str, 
                  path: str,
                  handler: str,
+                 description: str,
                  role: aws_iam.Role,
                  props: LambdaProperties
                  ):
         super().__init__(scope, id)
 
-        print("NODEJS LAMBDA HELPER NOT IMPLEMENTED")
-
-        # func_code = aws_lambda.Code.from_asset(path = path,
-        #                                        bundling = {
-        #                                            "command": [
-        #                                                "bash",
-        #                                                "-c",
-        #                                                "npm ci",
-        #                                             ],
-        #                                             "image": aws_lambda.Runtime.NODEJS_18_X.bundling_image,
-        #                                             "user": "root"
-        #                                        }
-        #                                       )
-        # 
-        # self.function = aws_lambda.Function(self,
-        #                                     id,
-        #                                     code = func_code,
-        #                                     vpc = props.vpc,
-        #                                     vpc_subnets = props.subnets,
-        #                                     security_groups = props.securitygroups,
-        #                                     log_retention = aws_logs.RetentionDays.THREE_MONTHS,
-        #                                     handler = handler,
-        #                                     runtime = aws_lambda.Runtime.NODEJS_18_X,
-        #                                     timeout = props.timeout,
-        #                                     memory_size = props.memory,
-        #                                     environment = props.environment,
-        #                                     role = role
-        #                                    )
-        # 
-        # add_tags(self.function, props.tags)
-
+        self.function = aws_lambda.Function(self,
+                                            id,
+                                            function_name = id,
+                                            description = description,
+                                            code = aws_lambda.AssetCode(path = path),
+                                            vpc = props.vpc,
+                                            vpc_subnets = props.subnets,
+                                            security_groups = props.securitygroups,
+                                            log_retention = aws_logs.RetentionDays.THREE_MONTHS,
+                                            handler = handler,
+                                            runtime = aws_lambda.Runtime.NODEJS_18_X,
+                                            timeout = props.timeout,
+                                            memory_size = props.memory,
+                                            environment = props.environment,
+                                            role = role
+                                           )
+        
+        add_tags(self.function, props.tags)
+        add_schedule(self, self.function, props.schedule)
 
 
 

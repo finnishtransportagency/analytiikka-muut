@@ -35,7 +35,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         """
         # projectname = self.node.try_get_context('project')
         properties = self.node.try_get_context(environment)
-        target_bucket = properties["ade_staging_bucket_name"]
+        target_bucket_name = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
         lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
         # glue_role_name = self.node.try_get_context('glue_role_name')
@@ -73,12 +73,6 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Lambda: testi 1
         # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
 
-        # TODO: "Parameter ScheduleExpression is not valid" => MITEN KORJATAAN
-        # events,Schedule.cron ( minute='0',
-        # hour='18',
-        # month='*',
-        # week_day='MON-FRI',
-        # year='*' )
         l1 = PythonLambdaFunction(self,
                              id = "testi1",
                              path = "lambda/testi1",
@@ -89,7 +83,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                              props = LambdaProperties(vpc = vpc,
                                                       timeout = 2, 
                                                       environment = {
-                                                          "target_bucket": target_bucket,
+                                                          "target_bucket": target_bucket_name,
                                                           "dummy_input_value": "10001101101"
                                                       },
                                                       tags = [
@@ -105,6 +99,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Lambda: servicenow testi
         l2 = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
+                           description = "ServiceNow haku taululle sn_customerservice_case"
                            path = "lambda/servicenow",
                            jarname = "servicenow-to-s3-lambda-1.0.0.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
@@ -118,7 +113,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                         "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
                                                         "output_split_limit": "1500",
                                                         "api_limit": "600",
-                                                        "output_bucket": "sn_customerservice_case",
+                                                        "output_bucket": target_bucket_name,
                                                         "output_path": "cmdb_ci_service",
                                                         "output_filename": "servicenow_sn_customerservice_case",
                                                         "coordinate_transform": "true",
@@ -131,3 +126,19 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
+        l2 = NodejsLambdaFunction(self,
+                             id = "testi2",
+                             path = "lambda/testi2",
+                             handler = "testi2.lambda_handler",
+                             description = "Testilambdan kuvaus",
+                             role = lambda_role,
+                             props = LambdaProperties(vpc = vpc,
+                                                      timeout = 2, 
+                                                      environment = {
+                                                          "target_bucket": target_bucket_name,
+                                                      },
+                                                      tags = None,
+                                                      securitygroups = [ lambda_securitygroup ],
+                                                      schedule = "0 10 20 * ? *"
+                                                     )
+                            )
