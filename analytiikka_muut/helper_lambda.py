@@ -57,9 +57,9 @@ def add_tags(function, tags):
 """
 Lisää ajastus
 """
-def add_schedule(self, function, schedule):
+def add_schedule(self, function, id, schedule):
     if schedule != None and schedule != "":
-        rule_name = f"{function.function_name}-schedule"
+        rule_name = f"{id}-schedule"
         rule = aws_events.Rule(self,
                                rule_name,
                                rule_name = rule_name,
@@ -111,7 +111,7 @@ class PythonLambdaFunction(Construct):
             )
 
         add_tags(self.function, props.tags)
-        add_schedule(self, self.function, props.schedule)
+        add_schedule(self, self.function, id, props.schedule)
 
         # if props.schedule != None and props.schedule != "":
         #     rule = aws_events.Rule(self,
@@ -172,7 +172,7 @@ class JavaLambdaFunction(Construct):
                                            )
         
         add_tags(self.function, props.tags)
-        add_schedule(self, self.function, props.schedule)
+        add_schedule(self, self.function, id, props.schedule)
 
 
 
@@ -210,7 +210,7 @@ class NodejsLambdaFunction(Construct):
                                            )
         
         add_tags(self.function, props.tags)
-        add_schedule(self, self.function, props.schedule)
+        add_schedule(self, self.function, id, props.schedule)
 
 
 
