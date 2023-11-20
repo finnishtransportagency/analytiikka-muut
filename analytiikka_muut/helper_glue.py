@@ -123,8 +123,7 @@ class PythonSparkGlueJob(Construct):
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
                                                glue_version = aws_glue_alpha.GlueVersion.of(version),
                                                python_version = aws_glue_alpha.PythonVersion.THREE,
-                                               script = aws_glue_alpha.Code.from_asset(script_path),
-                                               runtime = aws_glue_alpha.Runtime.of("3.11")
+                                               script = aws_glue_alpha.Code.from_asset(script_path)
                                            ),
                                            description = description,
                                            default_arguments = arguments,
