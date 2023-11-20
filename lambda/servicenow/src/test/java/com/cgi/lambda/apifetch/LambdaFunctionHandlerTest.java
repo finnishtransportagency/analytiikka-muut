@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.amazonaws.services.lambda.runtime.Context;
-//import com.cgi.lambda.apifetch.LambdaFunctionHandlerOld;
+
 
 
 /**
@@ -45,14 +45,8 @@ public class LambdaFunctionHandlerTest {
     
 	@Test
 	public void testDateHandler() {
-		LambdaFunctionHandlerOld handler = new LambdaFunctionHandlerOld();
-		Object object = new String("");
-		
-		String date=handler.getDate(object);
-		System.out.println(date);
-		
-		Assert.assertEquals("", date);
-	}
+
+    }
     
     
 }

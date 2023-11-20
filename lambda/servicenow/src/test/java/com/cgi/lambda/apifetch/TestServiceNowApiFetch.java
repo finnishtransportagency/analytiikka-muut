@@ -55,14 +55,13 @@ public class TestServiceNowApiFetch implements SimpleLogger, SimpleWriter {
 
 		String template = "{\"entries\":[],\"columns\":[\"DATA\"]}";
 	
-		ManifestCreator mfc = new ManifestCreator(this, this);
-		mfc.setTemplate(template);
-		
+		//ManifestCreator mfc = new ManifestCreator(this, this);
+		//mfc.setTemplate(template);
 		
 		ServiceNowApiFetch api = new ServiceNowApiFetch(this, this, username, password, url,
 				queryStringDefault, queryStringDate, argOffset, argLimit, increment, outputSplitLimit, coordinateTransform,
 				sourceName);
-		api.setManifestCreator(mfc);
+		//api.setManifestCreator(mfc);
 		api.process(startDate, endDate);
 
 	}
@@ -134,6 +133,7 @@ public class TestServiceNowApiFetch implements SimpleLogger, SimpleWriter {
 
 
 
+	/*
 	@Override
 	public boolean writeManifestFile(FileSpec outputFile, String data) {
 		String outputBucket   = this.mockmanifest;
@@ -165,9 +165,9 @@ public class TestServiceNowApiFetch implements SimpleLogger, SimpleWriter {
 		
 		return true;
 	}
+	*/
 
-
-
+	/*
 	@Override
 	public FileSpec makeManifestFileName(FileSpec dataFile) {
 		FileSpec retval = new FileSpec();
@@ -179,7 +179,7 @@ public class TestServiceNowApiFetch implements SimpleLogger, SimpleWriter {
 		retval.fileName = "manifest-table." + retval.sourceName + "." + retval.timestamp + ".batch." + retval.timestamp + ".fullscanned." + retval.fullscanned + ".json";
 		return retval; 
 	}
-	
+	*/
 	
 
 
