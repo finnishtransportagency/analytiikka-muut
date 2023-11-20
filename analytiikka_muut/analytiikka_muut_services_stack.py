@@ -97,17 +97,11 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                           { "toinen": "arvo" }
                                                       ],
                                                       securitygroups = [ lambda_securitygroup ],
-                                                      schedule = {
-                                                          "minute": "0",
-                                                          "hour": "10",
-                                                          "day": "20",
-                                                          "month": "*",
-                                                          "week_day": "?",
-                                                          "year": "*"
-                                                      }
+                                                      schedule = "0 10 20 * ? *"
                                                      )
                             )
-# 
+
+
         # # Lambda: servicenow testi
         # l2 = JavaLambdaFunction(self,
         #                    id = "servicenow-sn_customerservice_case",
