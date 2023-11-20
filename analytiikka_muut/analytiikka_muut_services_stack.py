@@ -12,6 +12,7 @@ from aws_cdk.aws_iam import ServicePrincipal
 from constructs import Construct
 
 from analytiikka_muut.helper_lambda import *
+from analytiikka_muut.helper_glue import *
 
 
 
@@ -33,17 +34,17 @@ class AnalytiikkaMuutServicesStack(Stack):
         """
         Yhteiset arvot projektilta ja ympäristön mukaan
         """
-        # projectname = self.node.try_get_context('project')
         properties = self.node.try_get_context(environment)
+        # #glue_script_bucket_name = properties["glue_script_bucket_name"]
         target_bucket_name = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
         lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
-        # glue_role_name = self.node.try_get_context('glue_role_name')
+        glue_role_name = self.node.try_get_context('glue_role_name')
         # glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
-        print(f"services {environment}: account = '{self.account}'")
-        print(f"services {environment}: region = '{self.region}'")
+        # print(f"services {environment}: account = '{self.account}'")
+        # print(f"services {environment}: region = '{self.region}'")
         # print(f"services {environment}: properties = '{properties}'")
 
 
@@ -51,12 +52,19 @@ class AnalytiikkaMuutServicesStack(Stack):
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
         # print(f"services {environment}: vpc = '{vpc}'")
         
+
         lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
         lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
 
-        #glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
-        #glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
 
+        # glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
+        glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
+
+        # glue_script_bucket = aws_s3.Bucket(self,
+        #                                    id = glue_script_bucket_name,
+        #                                    bucket_name = glue_script_bucket_name, 
+        #                                    auto_delete_objects = True,
+        #                                    removal_policy = RemovalPolicy.DESTROY)
 
 
         #
@@ -142,3 +150,19 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                       schedule = "0 10 20 * ? *"
                                                      )
                             )
+
+
+        g1 = PythonGlueJob(self,
+                 id = "testi3", 
+                 script_bucket_name = "dummy",
+                 path = "glue/testi3",
+                 type = "glueetl",
+                 timeout = 5,
+                 description = "Glue jobin kuvaus",
+                 worker = "G.1X",
+                 version = "4.0",
+                 role = glue_role,
+                 tags = None,
+                 arguments = None,
+                 connections = None
+        )

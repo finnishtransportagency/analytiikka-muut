@@ -59,8 +59,10 @@ Lisää ajastus
 """
 def add_schedule(self, function, schedule):
     if schedule != None and schedule != "":
+        rule_name = f"{function.function_name}-schedule"
         rule = aws_events.Rule(self,
-                               f"{id}-schedule",
+                               rule_name,
+                               rule_name = rule_name,
                                schedule = aws_events.Schedule.expression(f"cron({schedule})")
         )
         rule.add_target(aws_events_targets.LambdaFunction(function))
@@ -107,7 +109,7 @@ class PythonLambdaFunction(Construct):
             environment = props.environment,
             log_retention = aws_logs.RetentionDays.THREE_MONTHS
             )
-        
+
         add_tags(self.function, props.tags)
         add_schedule(self, self.function, props.schedule)
 

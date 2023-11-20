@@ -10,10 +10,17 @@ from constructs import Construct
 
 
 """
-Apukoodi glue- ajojen luontiin
-
-
+Apukoodit glue- ajojen luontiin
 """
+
+
+
+
+def add_tags(job, tags):
+    if tags:
+        for _t in tags:
+            for k, v in _t.items():
+                Tags.of(job).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
 
@@ -36,6 +43,7 @@ class PythonGlueJob(Construct):
     def __init__(self,
                  scope: Construct, 
                  id: str, 
+                 script_bucket_name: str,
                  path: str,
                  type: str,
                  timeout: any,
@@ -59,13 +67,18 @@ class PythonGlueJob(Construct):
         connectionlist = None
         if connections != None:
             connectionlist = aws_glue.CfnJob.ConnectionsListProperty(connections)
-
-
         
-        self.id = id
-
         script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
         script_asset = aws_s3_assets.Asset(self, "GlueScriptAsset", script_path)
+
+        print(f"asset path = '{script_asset.asset_path}'")
+
+        # new s3deploy.BucketDeployment(this, 'DeployGlueJobFiles', {
+        #     sources: [s3deploy.Source.asset('./resources/glue-scripts')],
+        #     destinationBucket: myBucket,
+        #     destinationKeyPrefix: 'glue-python-scripts'
+        # });
+ 
 
         self.job = aws_glue.CfnJob(self,
                                         name = id,
@@ -73,13 +86,16 @@ class PythonGlueJob(Construct):
                                         command = {
                                             "name": type,
                                             "python_version": "3",
-                                            "script_location": f"s3://{script_asset.s3_bucket_name}/{script_asset.s3_object_key}"
+                                            "script_location": script_asset.asset_path
                                         },
                                         role = role,
                                         timeout = timeout,
 
                                         default_arguments = arguments,
                                         connections = connectionlist,
+                                        execution_property = aws_glue.CfnJob.ExecutionPropertyProperty(
+                                            max_concurrent_runs=2
+                                        ),
 
                                         # HUOM: max_capacity tai worker type jne. Ei molempia
                                         #  max_capacity=None,
@@ -88,7 +104,7 @@ class PythonGlueJob(Construct):
                                         number_of_workers = 2,
                                         max_retries = 0
                                         )
-        
+        add_tags(self.job, tags)
 
 
 
@@ -107,29 +123,20 @@ class PythonGlueJob(Construct):
                                      timeout: int = None,
                                      arguments: dict = None):
 
-            cfn_trigger = aws_glue.CfnTrigger(self,
-                                              f"{self.id}-trigger",
-                                              actions = [aws_glue.CfnTrigger.ActionProperty(
-                                                  arguments = arguments,
-                                                  job_name = self.job.name,
-                                                  timeout = timeout
-                                                  )
-                                              ],
-                                              type = "SCHEDULED",
-                                              # the properties below are optional
-                                              description = description,
-                                              name = f"{self.id}-trigger",
-                                              schedule = schedule,
-                                              start_on_creation = False
-                                             )
+            trigger_name = f"{self.job.name}-trigger"
 
-
-
-
-        if tags:
-            for _t in tags:
-                for k, v in _t.items():
-                    Tags.of(self.job).add(k, v, apply_to_launched_instances = True, priority = 300)
-
-
-
+            self.trigger = aws_glue.CfnTrigger(self,
+                                               trigger_name,
+                                               name = trigger_name,
+                                               actions = [aws_glue.CfnTrigger.ActionProperty(
+                                                   arguments = arguments,
+                                                   job_name = self.job.name,
+                                                   timeout = timeout
+                                                   )
+                                               ],
+                                               type = "SCHEDULED",
+                                               description = description,
+                                               schedule = schedule,
+                                               start_on_creation = False
+                                              )
+            

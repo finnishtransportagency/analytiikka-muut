@@ -28,12 +28,14 @@
       "ade_staging_bucket_name": "vayla-ade-staging-dev",
       "temp_bucket_name": "vayla-ade-temp-dev",
       "archive_bucket_name" : "vayla-archive-dev",
+      "glue_script_bucket_name" : "vayla-glue-scripts-dev",
       "vpc_name": "LatausalueDev-VPC"
     },
     "prod": {
       "ade_staging_bucket_name": "vayla-ade-staging-prod",
       "temp_bucket_name": "vayla-ade-temp-prod",
       "archive_bucket_name" : "vayla-archive-prod",
+      "glue_script_bucket_name" : "vayla-glue-scripts-prod",
       "vpc_name": "LatausalueProd-VPC"
     },
     "tags": [
