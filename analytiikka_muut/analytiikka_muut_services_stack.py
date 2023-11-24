@@ -155,21 +155,6 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
 
-        s1_name = f"sampo-db-oracle-{environment}"
-        s1 = aws_secretsmanager.Secret(self,
-                                       id = s1_name,
-                                       secret_name = s1_name,
-                                       description = "Db-connection details for TalousDV Sampo Oracle views.",
-                                       secret_object_value={
-                                           "username": "dummy",
-                                           "password": "dummy",
-                                           "engine": "oracle",
-                                           "host": "todo",
-                                           "port": "1521",
-                                           "dbname": "SAMPO"
-                                           }
-                                           )
-
         c1 = GlueJdbcConnection(self,
                                 id = "testi3-connection",
                                 vpc = vpc,
@@ -178,7 +163,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                     "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//172.17.193.200:1521/ORCL",
                                     "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
                                     "JDBC_DRIVER_PATH": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
-                                    "SECRET_ID": s1_name
+                                    "SECRET_ID": f"db-sampo-oracle-{environment}"
                                 })
 
         g1 = PythonSparkGlueJob(self,
