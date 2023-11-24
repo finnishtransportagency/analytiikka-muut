@@ -111,7 +111,7 @@ class PythonSparkGlueJob(Construct):
 
         # TODO: connection
 
-
+        self.job_id = id
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -152,14 +152,14 @@ class PythonSparkGlueJob(Construct):
                  description: str = None,
                  timeout: int = None,
                  arguments: dict = None):
-     trigger_name = f"{self.job.job_name}-trigger"
+     trigger_name = f"{self.job_id}-trigger"
      schedule = f"cron({schedule})"
      self.trigger = aws_glue.CfnTrigger(self,
                                         trigger_name,
                                         name = trigger_name,
                                         actions = [aws_glue.CfnTrigger.ActionProperty(
                                             arguments = arguments,
-                                            job_name = self.job.job_name,
+                                            job_name = self.job_id,
                                             timeout = timeout
                                             )
                                         ],
