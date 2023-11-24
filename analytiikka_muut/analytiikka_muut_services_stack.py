@@ -163,7 +163,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                  tags = None,
                  arguments = None,
                  connection_name = None,
-                 enable_spark_ui = False
+                 enable_spark_ui = False,
+                 schedule = "0 12 24 * ? *"
         )
         #g1.schedule("15 12 * * ? *",
         #            description = "Ajastus",
