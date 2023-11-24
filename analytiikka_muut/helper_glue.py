@@ -89,7 +89,8 @@ class PythonSparkGlueJob(Construct):
                  tags: dict = None,
                  arguments: dict = None,
                  connection_name: str = None,
-                 enable_spark_ui: bool = False
+                 enable_spark_ui: bool = False,
+                 schedule: str = None
                  ):
         super().__init__(scope, id)
 
@@ -111,7 +112,7 @@ class PythonSparkGlueJob(Construct):
 
         # TODO: connection
 
-        self.job_id = id
+
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -135,40 +136,59 @@ class PythonSparkGlueJob(Construct):
 
         add_tags(self.job, tags)
 
-
-
-    """
-    Ajastus
-    
-    TODO: EI TESTATTU
- 
-    schedule: cron expressio
-    description: Kuvaus
-    timeout: Aikaraja minuutteina
-    arguments: Parametrit. Nämä korvaavat ajon oletusparametrit jos annettu
-    """
-    def schedule(self,
-                 schedule: str,
-                 description: str = None,
-                 timeout: int = None,
-                 arguments: dict = None):
-     trigger_name = f"{self.job_id}-trigger"
-     schedule = f"cron({schedule})"
-     self.trigger = aws_glue.CfnTrigger(self,
-                                        trigger_name,
-                                        name = trigger_name,
+        if schedule != None and schedule != "":
+            trigger_name = f"{id}-trigger"
+            schedule = f"cron({schedule})"
+            self.trigger = aws_glue.CfnTrigger(self,
+                                        id = trigger_name,
                                         actions = [aws_glue.CfnTrigger.ActionProperty(
                                             arguments = arguments,
-                                            job_name = self.job_id,
+                                            job_name = id,
                                             timeout = timeout
                                             )
                                         ],
                                         type = "SCHEDULED",
-                                        description = description,
+                                        name = trigger_name,
                                         schedule = schedule,
                                         start_on_creation = False
                                        )
-            
+            add_tags(self.trigger, tags)
+
+
+
+
+#    """
+#    Ajastus
+#    
+#    TODO: EI TESTATTU
+# 
+#    schedule: cron expressio
+#    description: Kuvaus
+#    timeout: Aikaraja minuutteina
+#    arguments: Parametrit. Nämä korvaavat ajon oletusparametrit jos annettu
+#    """
+#    def schedule(self,
+#                 schedule: str,
+#                 description: str = None,
+#                 timeout: int = None,
+#                 arguments: dict = None):
+#     trigger_name = f"{self.job_id}-trigger"
+#     schedule = f"cron({schedule})"
+#     self.trigger = aws_glue.CfnTrigger(self,
+#                                        trigger_name,
+#                                        name = trigger_name,
+#                                        actions = [aws_glue.CfnTrigger.ActionProperty(
+#                                            arguments = arguments,
+#                                            job_name = self.job_id,
+#                                            timeout = timeout
+#                                            )
+#                                        ],
+#                                        type = "SCHEDULED",
+#                                        description = description,
+#                                        schedule = schedule,
+#                                        start_on_creation = False
+#                                       )
+#            
 
 
 

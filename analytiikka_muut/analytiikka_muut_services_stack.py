@@ -165,8 +165,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                  connection_name = None,
                  enable_spark_ui = False
         )
-        g1.schedule("15 12 * * ? *",
-                    description = "Ajastus",
-                    timeout = 10,
-                    arguments = None)
+        #g1.schedule("15 12 * * ? *",
+        #            description = "Ajastus",
+        #            timeout = 10,
+        #            arguments = None)
 
