@@ -1,5 +1,6 @@
 from aws_cdk import (
     aws_iam,
+    aws_ec2,
     aws_glue,
     aws_glue_alpha,
     Duration,
@@ -61,6 +62,34 @@ def get_path(path: str) -> os.path:
 
 
 
+class GlueJdbcConnection(Construct):
+    """
+    Glue connection
+    """
+    def __init__(self,
+                 scope: Construct, 
+                 id: str, 
+                 vpc: any = None,
+                 security_groups: list = None,
+                 properties: dict = None
+                 ):
+        super().__init__(scope, id)
+
+        selected = vpc.select_subnets()
+        self.subnets = aws_ec2.SubnetSelection(subnets = selected.subnets)
+
+        self.connection = aws_glue_alpha.Connection(self,
+                                                    id = id,
+                                                    connection_name = id,
+                                                    type = aws_glue_alpha.ConnectionType.JDBC,
+                                                    properties = properties,
+                                                    security_groups = security_groups,
+                                                    subnet = self.subnets.subnets[0]
+                                                    )
+        return(self.connection)
+
+
+
 """
 
 id: Ajon nimi
@@ -88,9 +117,10 @@ class PythonSparkGlueJob(Construct):
                  role: aws_iam.Role = None,
                  tags: dict = None,
                  arguments: dict = None,
-                 connection_name: str = None,
+                 connections: list = None,
                  enable_spark_ui: bool = False,
-                 schedule: str = None
+                 schedule: str = None,
+                 schedule_description: str = None
                  ):
         super().__init__(scope, id)
 
@@ -131,7 +161,8 @@ class PythonSparkGlueJob(Construct):
                                            worker_count = 2,
                                            max_retries = 0,
                                            timeout = get_timeout(timeout),
-                                           max_concurrent_runs = 2
+                                           max_concurrent_runs = 2,
+                                           connections = connections
                                            )
 
         add_tags(self.job, tags)
@@ -149,6 +180,7 @@ class PythonSparkGlueJob(Construct):
                                         ],
                                         type = "SCHEDULED",
                                         name = trigger_name,
+                                        description = schedule_description,
                                         schedule = schedule,
                                         start_on_creation = False
                                        )
@@ -157,38 +189,6 @@ class PythonSparkGlueJob(Construct):
 
 
 
-#    """
-#    Ajastus
-#    
-#    TODO: EI TESTATTU
-# 
-#    schedule: cron expressio
-#    description: Kuvaus
-#    timeout: Aikaraja minuutteina
-#    arguments: Parametrit. Nämä korvaavat ajon oletusparametrit jos annettu
-#    """
-#    def schedule(self,
-#                 schedule: str,
-#                 description: str = None,
-#                 timeout: int = None,
-#                 arguments: dict = None):
-#     trigger_name = f"{self.job_id}-trigger"
-#     schedule = f"cron({schedule})"
-#     self.trigger = aws_glue.CfnTrigger(self,
-#                                        trigger_name,
-#                                        name = trigger_name,
-#                                        actions = [aws_glue.CfnTrigger.ActionProperty(
-#                                            arguments = arguments,
-#                                            job_name = self.job_id,
-#                                            timeout = timeout
-#                                            )
-#                                        ],
-#                                        type = "SCHEDULED",
-#                                        description = description,
-#                                        schedule = schedule,
-#                                        start_on_creation = False
-#                                       )
-#            
 
 
 
@@ -242,4 +242,21 @@ class PythonShellGlueJob(Construct):
 
         add_tags(self.job, tags)
 
+        if schedule != None and schedule != "":
+            trigger_name = f"{id}-trigger"
+            schedule = f"cron({schedule})"
+            self.trigger = aws_glue.CfnTrigger(self,
+                                        id = trigger_name,
+                                        actions = [aws_glue.CfnTrigger.ActionProperty(
+                                            arguments = arguments,
+                                            job_name = id,
+                                            timeout = timeout
+                                            )
+                                        ],
+                                        type = "SCHEDULED",
+                                        name = trigger_name,
+                                        schedule = schedule,
+                                        start_on_creation = False
+                                       )
+            add_tags(self.trigger, tags)
 

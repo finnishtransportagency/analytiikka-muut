@@ -3,6 +3,7 @@ from aws_cdk import (
     aws_ec2,
     aws_s3,
     aws_iam,
+    aws_secretsmanager,
     RemovalPolicy
 )
 
@@ -36,11 +37,12 @@ class AnalytiikkaMuutServicesStack(Stack):
         """
         properties = self.node.try_get_context(environment)
         # #glue_script_bucket_name = properties["glue_script_bucket_name"]
+        driver_bucket_name = properties["driver_bucket_name"]
         target_bucket_name = properties["ade_staging_bucket_name"]
         lambda_role_name = self.node.try_get_context('lambda_role_name')
         lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
         glue_role_name = self.node.try_get_context('glue_role_name')
-        # glue_security_group_name = self.node.try_get_context('glue_security_group_name')
+        glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
         # print(f"services {environment}: account = '{self.account}'")
@@ -57,7 +59,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
 
 
-        # glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
+        glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
 
         # glue_script_bucket = aws_s3.Bucket(self,
@@ -152,6 +154,33 @@ class AnalytiikkaMuutServicesStack(Stack):
                             )
 
 
+
+        s1_name = f"sampo-db-oracle-{environment}"
+        s1 = aws_secretsmanager.Secret(self,
+                                       id = s1_name,
+                                       secret_name = s1_name,
+                                       description = "Db-connection details for TalousDV Sampo Oracle views.",
+                                       secret_object_value={
+                                           "username": "dummy",
+                                           "password": "dummy",
+                                           "engine": "oracle",
+                                           "host": "todo",
+                                           "port": "1521",
+                                           "dbname": "SAMPO"
+                                           }
+                                           )
+
+        c1 = GlueJdbcConnection(self,
+                                id = "testi3-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//172.17.193.200:1521/ORCL",
+                                    "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
+                                    "JDBC_DRIVER_PATH": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
+                                    "SECRET_ID": s1_name
+                                })
+
         g1 = PythonSparkGlueJob(self,
                  id = "testi3", 
                  path = "glue/testi3/testi3.py",
@@ -162,12 +191,13 @@ class AnalytiikkaMuutServicesStack(Stack):
                  role = glue_role,
                  tags = None,
                  arguments = None,
-                 connection_name = None,
+                 connections = [ c1 ],
                  enable_spark_ui = False,
-                 schedule = "0 12 24 * ? *"
+                 schedule = "0 12 24 * ? *",
+                 schedule_description = "Normaali ajastus"
         )
-        #g1.schedule("15 12 * * ? *",
-        #            description = "Ajastus",
-        #            timeout = 10,
-        #            arguments = None)
+
+
+
+
 
