@@ -137,41 +137,37 @@ class PythonSparkGlueJob(Construct):
 
 
 
-        """
-        Ajastus
-
-        TODO: EI TESTATTU
-
-        schedule: cron expressio
-        description: Kuvaus
-        timeout: Aikaraja minuutteina
-        arguments: Parametrit. Nämä korvaavat ajon oletusparametrit jos annettu
-
-
-        """
-        def schedule(schedule: str,
-                     description: str = None,
-                     timeout: int = None,
-                     arguments: dict = None):
-
-            trigger_name = f"{self.job.name}-trigger"
-
-            schedule = f"cron({schedule})"
-
-            self.trigger = aws_glue.CfnTrigger(self,
-                                               trigger_name,
-                                               name = trigger_name,
-                                               actions = [aws_glue.CfnTrigger.ActionProperty(
-                                                   arguments = arguments,
-                                                   job_name = self.job.name,
-                                                   timeout = timeout
-                                                   )
-                                               ],
-                                               type = "SCHEDULED",
-                                               description = description,
-                                               schedule = schedule,
-                                               start_on_creation = False
-                                              )
+    """
+    Ajastus
+    
+    TODO: EI TESTATTU
+ 
+    schedule: cron expressio
+    description: Kuvaus
+    timeout: Aikaraja minuutteina
+    arguments: Parametrit. Nämä korvaavat ajon oletusparametrit jos annettu
+    """
+    def schedule(self,
+                 schedule: str,
+                 description: str = None,
+                 timeout: int = None,
+                 arguments: dict = None):
+     trigger_name = f"{self.job.name}-trigger"
+     schedule = f"cron({schedule})"
+     self.trigger = aws_glue.CfnTrigger(self,
+                                        trigger_name,
+                                        name = trigger_name,
+                                        actions = [aws_glue.CfnTrigger.ActionProperty(
+                                            arguments = arguments,
+                                            job_name = self.job.name,
+                                            timeout = timeout
+                                            )
+                                        ],
+                                        type = "SCHEDULED",
+                                        description = description,
+                                        schedule = schedule,
+                                        start_on_creation = False
+                                       )
             
 
 
