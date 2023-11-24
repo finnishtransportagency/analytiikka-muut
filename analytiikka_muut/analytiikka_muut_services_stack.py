@@ -36,12 +36,24 @@ class AnalytiikkaMuutServicesStack(Stack):
         Yhteiset arvot projektilta ja ympäristön mukaan
         """
         properties = self.node.try_get_context(environment)
-        # #glue_script_bucket_name = properties["glue_script_bucket_name"]
+
+        # Yhteinen: buketti jdbc- ajureille ja asetustiedostoille.
+        # Ajurit esim tyypin mukaan omiin polkuihin ( /oracle-driver/ojdbc8.jar, jne )
+        # Asetustiedostot mielellään jobin nimen mukaiseen polkuun tai /asetukset/<job>/
         driver_bucket_name = properties["driver_bucket_name"]
+        # ADE file bucket
         target_bucket_name = properties["ade_staging_bucket_name"]
+        # Yhteinen temp- buketti
+        temp_bucket_name = properties["temp_bucket_name"]
+        # Yhteinen arkisto- buketti
+        archive_bucket_name = properties["archive_bucket_name"]
+        # Yhteiskäyttöinen rooli lambdoille
         lambda_role_name = self.node.try_get_context('lambda_role_name')
+        # Yhteiskäyttöinen securoty group lambdoille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
         lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
+        # Yhteiskäyttöinen rooli glue- jobeille
         glue_role_name = self.node.try_get_context('glue_role_name')
+        # Yhteiskäyttöinen security group glue- jobeille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
         glue_security_group_name = self.node.try_get_context('glue_security_group_name')
 
         # print(f"services {environment}: project = '{projectname}'")
@@ -49,38 +61,26 @@ class AnalytiikkaMuutServicesStack(Stack):
         # print(f"services {environment}: region = '{self.region}'")
         # print(f"services {environment}: properties = '{properties}'")
 
-
+        # Lookup: VPC
         vpcname = properties["vpc_name"]
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
         # print(f"services {environment}: vpc = '{vpc}'")
         
-
+        # Lookup: Lambda security group
         lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
-        lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable=False)
-
-
+        # Lookup: Lambda rooli
+        lambda_role = aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable = False)
+        # Lookup: Glue security group
         glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
-        glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable=False)
-
-        # glue_script_bucket = aws_s3.Bucket(self,
-        #                                    id = glue_script_bucket_name,
-        #                                    bucket_name = glue_script_bucket_name, 
-        #                                    auto_delete_objects = True,
-        #                                    removal_policy = RemovalPolicy.DESTROY)
+        # Lookup: Glue rooli
+        glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
 
 
         #
-        # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä pääteltyjä asioita tarvittaessa
+        # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
         #
 
-        dummy = aws_s3.Bucket(self,
-                              id = f"vayla-cdk-test-xxxx-{environment}",
-                              bucket_name = f"vayla-cdk-test-xxxx-{environment}", 
-                              auto_delete_objects = True,
-                              removal_policy = RemovalPolicy.DESTROY)
-
-
-        # Lambda: testi 1
+        # Esimerkki 1 python lambda
         # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
 
         l1 = PythonLambdaFunction(self,
@@ -106,7 +106,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                             )
 
 
-        # Lambda: servicenow testi
+        # Esimerkki 2: java lambda
         l2 = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
                            description = "ServiceNow haku taululle sn_customerservice_case",
@@ -136,6 +136,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
+
         l2 = NodejsLambdaFunction(self,
                              id = "testi2",
                              path = "lambda/testi2",
@@ -162,7 +163,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                 properties = {
                                     "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
                                     "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
-                                    "JDBC_DRIVER_PATH": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
+                                    "JDBC_DRIVER_JAR_URI": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
                                     "SECRET_ID": f"db-sampo-oracle-{environment}"
                                 })
 

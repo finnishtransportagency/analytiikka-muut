@@ -18,7 +18,9 @@ Apukoodit glue- ajojen luontiin
 
 
 
-
+"""
+Lisää tagit
+"""
 def add_tags(job, tags):
     if tags:
         for _t in tags:
@@ -26,7 +28,9 @@ def add_tags(job, tags):
                 Tags.of(job).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
-
+"""
+Worker type muunnos str -> WorkerType
+"""
 def get_worker_type(worker: str) -> aws_glue_alpha.WorkerType:
     value = aws_glue_alpha.WorkerType.G_1_X
     if worker == "G 2X":
@@ -41,7 +45,9 @@ def get_worker_type(worker: str) -> aws_glue_alpha.WorkerType:
         value = aws_glue_alpha.WorkerType.Z_2_X
     return(value)
 
-
+"""
+Timeout numero -> Duration
+"""
 def get_timeout(timeout: int) -> Duration:
     value = Duration.minutes(1)
     if timeout != None and timeout > 0:
@@ -49,6 +55,9 @@ def get_timeout(timeout: int) -> Duration:
     return(value)
 
 
+"""
+Versio str -> GlueVersion
+"""
 def get_version(version: str) -> aws_glue_alpha.GlueVersion:
     value = aws_glue_alpha.GlueVersion.V4_0
     if version != "" and version != None:
@@ -56,12 +65,21 @@ def get_version(version: str) -> aws_glue_alpha.GlueVersion:
     return(value)
 
 
+"""
+Polku
+"""
 def get_path(path: str) -> os.path:
     return(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path))
 
 
 
 
+"""
+
+Properties:
+https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-catalog-connections.html#aws-glue-api-catalog-connections-Connection
+
+"""
 class GlueJdbcConnection(Construct):
     """
     Glue connection
@@ -94,15 +112,17 @@ class GlueJdbcConnection(Construct):
 
 id: Ajon nimi
 path: polku projektissa (= /glue/<jobname>)
-type: glueetl (= Spark ETL), pythonshell (= Python script), gluestreaming (= Spark streaming), glueRay (= Ray)
-timout: aikaraja minuutteina
+timeout: aikaraja minuutteina, oletus = 1
 description: Kuvaus
-worker: G.1X, G.2X, G.4X, G.8X, G.025X, Z.2X
-version: glue versio
-role: IAM roolin nimi
+worker: G.1X, G.2X, G.4X, G.8X, G.025X, Z.2X, oletus = G.1X
+version: glue versio, oletus = 4.0
+role: Glue IAM roolin nimi
 tags: Lisätagit
 arguments: oletusparametrit
-connections: connectit
+connections: connectit, lista
+enable_spark_ui:  spark ui päälle/pois, oletus = pois
+schedule: ajastus, cron expressio
+schedule_description: ajastuksen kuvaus
 """
 class PythonSparkGlueJob(Construct):
 
@@ -124,25 +144,10 @@ class PythonSparkGlueJob(Construct):
                  ):
         super().__init__(scope, id)
 
-
-
-        # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
-        # connections = aws_glue.CfnJob.ConnectionsListProperty(connections=["connections"])
-        # execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
-
-        # connectionlist = None
-        # if connections != None:
-        #     connectionlist = aws_glue.CfnJob.ConnectionsListProperty(connections)
-        
-        # script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
-        # print(f"asset path = '{script_path}'")
-
-        #if connection_name:
-        #    connection = aws_glue_alpha.Connection.from_connection_name(self, id = "id", connection_name = connection_name)
-
-        # TODO: connection
-
-
+        """
+        https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
+        execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
+        """
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -207,19 +212,16 @@ class PythonShellGlueJob(Construct):
                  version: str = None,
                  role: aws_iam.Role = None,
                  tags: dict = None,
-                 arguments: dict = None
+                 arguments: dict = None,
+                 schedule: str = None,
+                 schedule_description: str = None
                  ):
         super().__init__(scope, id)
 
-
-
-        # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
-        # connections = aws_glue.CfnJob.ConnectionsListProperty(connections=["connections"])
-        # execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
-
-        # script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
-        # print(f"asset path = '{script_path}'")
-
+        """
+        https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
+        execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
+        """
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -255,8 +257,10 @@ class PythonShellGlueJob(Construct):
                                         ],
                                         type = "SCHEDULED",
                                         name = trigger_name,
+                                        description = schedule_description,
                                         schedule = schedule,
                                         start_on_creation = False
                                        )
             add_tags(self.trigger, tags)
+
 

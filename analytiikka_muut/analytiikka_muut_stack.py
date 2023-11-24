@@ -35,31 +35,15 @@ class AnalytiikkaMuutStack(Stack):
         devaccount = self.account
         appregion = self.region
 
+        # Projekti == repon nimi
         projectname = self.node.try_get_context('project')
+        # Git yhteys
         gitrepo = self.node.try_get_context('gitrepo')
         gitbranch = self.node.try_get_context('gitbranch')
         gittokensecretname = self.node.try_get_context('gittokensecretname')
-        
-        
         prodaccountparameter = self.node.try_get_context('prodaccountparameter')
-        # print(f"cicd: prod account param = {prodaccountparameter}")
-
-        # gitconnectionparameterident = self.node.try_get_context('gitconnectionparameterident')
-        # gitconnectionid = ssm.StringParameter.value_from_lookup(self, f"{projectname}-{gitconnectionparameterident}")
-        # print(f"cicd: git connection ident = {gitconnectionparameterident}")
-
         prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
-
-        # print(f"cicd: dev account = {devaccount}")
-        # print(f"cicd: app region = {appregion}")
-        # print(f"cicd: prod account = {prodaccount}")
-
-
         gitsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "gittoken", secret_name = gittokensecretname)
-        # print(f"cicd: git repo = {gitrepo}")
-        # print(f"cicd: git branch = {gitbranch}")
-        # print(f"cicd: git token = {gitsecret.secret_value}")
-        
 
         # Pipeline
         pipeline =  CodePipeline(self, 

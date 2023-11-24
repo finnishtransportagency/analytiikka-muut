@@ -17,19 +17,34 @@ from constructs import Construct
 """
 Apukoodit lambdojen luontiin
 
-PYTHON OK
+
 
 """
-
-
 
 
 
 """
 Lambda parametrit
+
+vpc:  Vpc
+securitygroups: Sequence[ISecurityGroup]
+timeout:  int, sekunteja
+memory: int, byte
+environment: dict
+tags: dict   Lambda lisätagit vakioiden lisäksi
+schedule: str  cron expression
+
+
 """
 class LambdaProperties:
-    def __init__(self, vpc = None, securitygroups = None, timeout: int = None, memory: int = None, environment: dict = None, tags: dict = None, schedule: str = None):
+    def __init__(self, 
+                 vpc: aws_ec2.Vpc = None, 
+                 securitygroups = None, 
+                 timeout: int = None, 
+                 memory: int = None, 
+                 environment: dict = None, 
+                 tags: dict = None, 
+                 schedule: str = None):
         self.vpc = vpc
         self.subnets = None
         if vpc != None:
@@ -72,7 +87,7 @@ def add_schedule(self, function, id, schedule):
 
 
 """
-Python lambda
+Python lambda, 3.11
 
 Jos tarvitaan layer: https://github.com/aws-samples/aws-cdk-examples/blob/master/python/lambda-layer/app.py
 
@@ -113,18 +128,15 @@ class PythonLambdaFunction(Construct):
         add_tags(self.function, props.tags)
         add_schedule(self, self.function, id, props.schedule)
 
-        # if props.schedule != None and props.schedule != "":
-        #     rule = aws_events.Rule(self,
-        #                            f"{id}-schedule",
-        #                            schedule = aws_events.Schedule.expression(f"cron({props.schedule})")
-        #     )
-        #     rule.add_target(aws_events_targets.LambdaFunction(self.function))
+
 
 
 
 
 """
 Java lambda
+
+HUOM: olettaa että on maven- projekti, java 11
 
 """
 class JavaLambdaFunction(Construct):
@@ -178,6 +190,9 @@ class JavaLambdaFunction(Construct):
 
 """
 Node.js lambda
+
+Runtime = 18.x
+
 """
 class NodejsLambdaFunction(Construct):
 
