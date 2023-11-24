@@ -26,6 +26,41 @@ def add_tags(job, tags):
 
 
 
+def get_worker_type(worker: str) -> aws_glue_alpha.WorkerType:
+    value = aws_glue_alpha.WorkerType.G_1_X
+    if worker == "G 2X":
+        value = aws_glue_alpha.WorkerType.G_2_X
+    elif worker == "G 4X":
+        value = aws_glue_alpha.WorkerType.G_4_X
+    elif worker == "G 8X":
+        value = aws_glue_alpha.WorkerType.G_8_X
+    elif worker == "G 025X":
+        value = aws_glue_alpha.WorkerType.G_025_X
+    elif worker == "Z 2X":
+        value = aws_glue_alpha.WorkerType.Z_2_X
+    return(value)
+
+
+def get_timeout(timeout: int) -> Duration:
+    value = Duration.minutes(1)
+    if timeout != None and timeout > 0:
+        value = Duration.minutes(timeout)
+    return(value)
+
+
+def get_version(version: str) -> aws_glue_alpha.GlueVersion:
+    value = aws_glue_alpha.GlueVersion.V4_0
+    if version != "" and version != None:
+        value = aws_glue_alpha.GlueVersion.of(version)
+    return(value)
+
+
+def get_path(path: str) -> os.path:
+    return(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path))
+
+
+
+
 """
 
 id: Ajon nimi
@@ -58,8 +93,7 @@ class PythonSparkGlueJob(Construct):
                  ):
         super().__init__(scope, id)
 
-        if version == "" or version == None:
-            version = "4.0"
+
 
         # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         # connections = aws_glue.CfnJob.ConnectionsListProperty(connections=["connections"])
@@ -69,50 +103,14 @@ class PythonSparkGlueJob(Construct):
         # if connections != None:
         #     connectionlist = aws_glue.CfnJob.ConnectionsListProperty(connections)
         
-        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
-        # script_asset = aws_s3_assets.Asset(self, f"{id}-asset", path = script_path)
-
-        print(f"asset path = '{script_path}'")
-
-        # new s3deploy.BucketDeployment(this, 'DeployGlueJobFiles', {
-        #     sources: [s3deploy.Source.asset('./resources/glue-scripts')],
-        #     destinationBucket: myBucket,
-        #     destinationKeyPrefix: 'glue-python-scripts'
-        # });
- 
-
-        # self.job = aws_glue.CfnJob(self,
-        #                            id = id,
-        #                            name = id,
-        #                            description = description,
-        #                            command = {
-        #                                "name": type,
-        #                                "python_version": "3",
-        #                                "script_location": script_asset.asset_path
-        #                            },
-        #                            role = role,
-        #                            timeout = timeout,
-        #                            default_arguments = arguments,
-        #                            connections = connectionlist,
-        #                            execution_property = aws_glue.CfnJob.ExecutionPropertyProperty(
-        #                                max_concurrent_runs=2
-        #                            ),
-        #                            # HUOM: max_capacity tai worker type jne. Ei molempia
-        #                            #  max_capacity=None,
-        #                            glue_version = version,
-        #                            worker_type = worker,
-        #                            number_of_workers = 2,
-        #                            max_retries = 0
-        #                            )
-        
-
-        if timeout:
-            timeout_mins = Duration.minutes(timeout)
+        # script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
+        # print(f"asset path = '{script_path}'")
 
         #if connection_name:
         #    connection = aws_glue_alpha.Connection.from_connection_name(self, id = "id", connection_name = connection_name)
 
         # TODO: connection
+
 
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
@@ -121,17 +119,17 @@ class PythonSparkGlueJob(Construct):
                                                enabled = enable_spark_ui
                                            ),
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
-                                               glue_version = aws_glue_alpha.GlueVersion.of(version),
+                                               glue_version = get_version(version),
                                                python_version = aws_glue_alpha.PythonVersion.THREE,
-                                               script = aws_glue_alpha.Code.from_asset(script_path)
+                                               script = aws_glue_alpha.Code.from_asset(get_path(path))
                                            ),
                                            description = description,
                                            default_arguments = arguments,
                                            role = role,
-                                           worker_type = aws_glue_alpha.WorkerType.G_1_X,
+                                           worker_type = get_worker_type(worker),
                                            worker_count = 2,
                                            max_retries = 0,
-                                           timeout = timeout_mins,
+                                           timeout = get_timeout(timeout),
                                            max_concurrent_runs = 2
                                            )
 
@@ -142,6 +140,8 @@ class PythonSparkGlueJob(Construct):
         """
         Ajastus
 
+        TODO: EI TESTATTU
+
         schedule: cron expressio
         description: Kuvaus
         timeout: Aikaraja minuutteina
@@ -149,12 +149,14 @@ class PythonSparkGlueJob(Construct):
 
 
         """
-        def create_glue_job_schedule(schedule: str,
-                                     description: str = None,
-                                     timeout: int = None,
-                                     arguments: dict = None):
+        def schedule(schedule: str,
+                     description: str = None,
+                     timeout: int = None,
+                     arguments: dict = None):
 
             trigger_name = f"{self.job.name}-trigger"
+
+            schedule = f"cron({schedule})"
 
             self.trigger = aws_glue.CfnTrigger(self,
                                                trigger_name,
@@ -174,6 +176,9 @@ class PythonSparkGlueJob(Construct):
 
 
 
+"""
+TODO: EI TESTATTU
+"""
 class PythonShellGlueJob(Construct):
 
     def __init__(self,
@@ -190,38 +195,31 @@ class PythonShellGlueJob(Construct):
                  ):
         super().__init__(scope, id)
 
-        if version == "" or version == None:
-            version = "4.0"
+
 
         # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         # connections = aws_glue.CfnJob.ConnectionsListProperty(connections=["connections"])
         # execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
 
-        
-        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
-
-        print(f"asset path = '{script_path}'")
-
-        if timeout:
-            timeout_mins = Duration.minutes(timeout)
-
+        # script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)
+        # print(f"asset path = '{script_path}'")
 
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
                                            executable = aws_glue_alpha.JobExecutable.python_shell(
-                                               glue_version = aws_glue_alpha.GlueVersion.of(version),
+                                               glue_version = get_version(version),
                                                python_version = aws_glue_alpha.PythonVersion.THREE,
-                                               script = aws_glue_alpha.Code.from_asset(script_path),
+                                               script = aws_glue_alpha.Code.from_asset(get_path(path)),
                                                runtime = aws_glue_alpha.Runtime.of("3.11")
                                            ),
                                            description = description,
                                            default_arguments = arguments,
                                            role = role,
-                                           worker_type = aws_glue_alpha.WorkerType.of(worker),
+                                           worker_type = get_worker_type(worker),
                                            worker_count = 2,
                                            max_retries = 0,
-                                           timeout = timeout_mins,
+                                           timeout = get_timeout(timeout),
                                            max_concurrent_runs = 2
 
                                            )

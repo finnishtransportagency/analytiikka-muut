@@ -157,12 +157,16 @@ class AnalytiikkaMuutServicesStack(Stack):
                  path = "glue/testi3/testi3.py",
                  timeout = 1,
                  description = "Glue jobin kuvaus",
-                 worker = "G.1X",
-                 version = "4.0",
+                 worker = "G 1X",
+                 version = None,
                  role = glue_role,
                  tags = None,
                  arguments = None,
                  connection_name = None,
                  enable_spark_ui = False
         )
+        g1.schedule("15 12 * * ? *",
+                    description = "Ajastus",
+                    timeout = 10,
+                    arguments = None)
 
