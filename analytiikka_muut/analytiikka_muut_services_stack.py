@@ -160,7 +160,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                 vpc = vpc,
                                 security_groups = [ glue_securitygroup ],
                                 properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//172.17.193.200:1521/ORCL",
+                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
                                     "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
                                     "JDBC_DRIVER_PATH": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
                                     "SECRET_ID": f"db-sampo-oracle-{environment}"
@@ -176,7 +176,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                  role = glue_role,
                  tags = None,
                  arguments = None,
-                 connections = [ c1 ],
+                 connections = [ c1.connection ],
                  enable_spark_ui = False,
                  schedule = "0 12 24 * ? *",
                  schedule_description = "Normaali ajastus"

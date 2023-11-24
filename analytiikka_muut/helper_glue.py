@@ -86,7 +86,7 @@ class GlueJdbcConnection(Construct):
                                                     security_groups = security_groups,
                                                     subnet = self.subnets.subnets[0]
                                                     )
-        return(self.connection)
+        
 
 
 
