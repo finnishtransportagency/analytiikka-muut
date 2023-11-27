@@ -6,19 +6,26 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AccessControlList;
-import com.amazonaws.services.s3.model.CanonicalGrantee;
-import com.amazonaws.services.s3.model.Grant;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.Permission;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.sync.RequestBody;
+
+//import com.amazonaws.services.s3.AmazonS3;
+//import com.amazonaws.services.s3.AmazonS3Client;
+//import com.amazonaws.services.s3.model.AccessControlList;
+//import com.amazonaws.services.s3.model.CanonicalGrantee;
+//import com.amazonaws.services.s3.model.Grant;
+//import com.amazonaws.services.s3.model.ObjectMetadata;
+//import com.amazonaws.services.s3.model.Permission;
+//import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
@@ -65,7 +72,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 
 		this.region = System.getenv("AWS_REGION");
 
-		this.pathYearMonthDay = DateTime.now().toString("YYYY/MM/DD/");
+		this.pathYearMonthDay = DateTime.now().toString("yyyy/MM/dd/");
 		//this.runYearMonth = DateTime.now().toString("YYYY-MM");
 		//String t = System.getenv("add_path_ym");
 		//if ("0".equals(t) || "false".equalsIgnoreCase(t)) {
@@ -324,21 +331,33 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		logger.log("Write data, file name = '" + fullPath + "'");
 
 		try {
-			AmazonS3 s3Client = AmazonS3Client.builder().withRegion(this.region).build();
+
+			//AmazonS3 s3Client = AmazonS3Client.builder().withRegion(this.region).build();
+			//byte[] stringByteArray = data.getBytes(this.charset);
+			//InputStream byteString = new ByteArrayInputStream(stringByteArray);
+			//ObjectMetadata objMetadata = new ObjectMetadata();
+			//objMetadata.setContentType("plain/text");
+			//objMetadata.setContentLength(stringByteArray.length);
+			//s3Client.putObject(outputFile.bucket, path, byteString, objMetadata);
+
+			S3Client s3Client = S3Client.builder().build();
 			byte[] stringByteArray = data.getBytes(this.charset);
-			InputStream byteString = new ByteArrayInputStream(stringByteArray);
-			ObjectMetadata objMetadata = new ObjectMetadata();
-			objMetadata.setContentType("plain/text");
-			objMetadata.setContentLength(stringByteArray.length);
+			//InputStream byteString = new ByteArrayInputStream(stringByteArray);
 
-			s3Client.putObject(outputFile.bucket, path, byteString, objMetadata);
+			Map<String, String> metadata = new HashMap<>();
+			metadata.put("Content-Type", "text/plain");
+			metadata.put("Content-Size", Integer.toString(stringByteArray.length));
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(outputFile.bucket)
+				.key(path)
+				.metadata(metadata)
+				.build();
+	        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(stringByteArray));
 			result = true;
-
-		} catch (UnsupportedEncodingException e) {
+		} catch (AwsServiceException  e) {
 			//String errorMessage = "Error: Failure to encode file to load in: " + outputFile.bucket + "/" + outputFile.path + "/" + outputFile.fileName;
 			String errorMessage = "Error: encode '" + e.toString() + "', '" + e.getMessage() + "', file name = '" + fullPath + "'";
 			this.logger.log(errorMessage);
-
 			System.err.println(errorMessage);
 			e.printStackTrace();
 		} catch (Exception e) {
