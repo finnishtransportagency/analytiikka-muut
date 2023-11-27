@@ -83,31 +83,61 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Esimerkki 1 python lambda
         # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
 
-        l1 = PythonLambdaFunction(self,
-                             id = "testi1",
-                             path = "lambda/testi1",
-                             index = "testi1.py",
-                             handler = "testi1.lambda_handler",
-                             description = "Testilambdan kuvaus",
-                             role = lambda_role,
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout = 2, 
-                                                      environment = {
-                                                          "target_bucket": target_bucket_name,
-                                                          "dummy_input_value": "10001101101"
-                                                      },
-                                                      tags = [
-                                                          { "testitag": "jotain" },
-                                                          { "toinen": "arvo" }
-                                                      ],
-                                                      securitygroups = [ lambda_securitygroup ],
-                                                      schedule = "0 10 20 * ? *"
-                                                     )
-                            )
+        # l1 = PythonLambdaFunction(self,
+        #                      id = "testi1",
+        #                      path = "lambda/testi1",
+        #                      index = "testi1.py",
+        #                      handler = "testi1.lambda_handler",
+        #                      description = "Testilambdan kuvaus",
+        #                      role = lambda_role,
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout = 2, 
+        #                                               environment = {
+        #                                                   "target_bucket": target_bucket_name,
+        #                                                   "dummy_input_value": "10001101101"
+        #                                               },
+        #                                               tags = [
+        #                                                   { "testitag": "jotain" },
+        #                                                   { "toinen": "arvo" }
+        #                                               ],
+        #                                               securitygroups = [ lambda_securitygroup ],
+        #                                               schedule = "0 10 20 * ? *"
+        #                                              )
+        #                     )
 
 
         # Esimerkki 2: java lambda
-        l2 = JavaLambdaFunction(self,
+
+        servicenow_u_case = JavaLambdaFunction(self,
+                           id = "servicenow-u_case",
+                           description = "ServiceNow haku taululle u_case",
+                           path = "lambda/servicenow",
+                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+                           role = lambda_role,
+                           props = LambdaProperties(vpc = vpc,
+                                                    timeout = 15,
+                                                    memory = 2048,
+                                                    environment={
+                                                        "secret_name": f"api-servicenow-{environment}",
+                                                        "query_string_default": "u_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
+                                                        "query_string_date": "u_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
+                                                        "output_split_limit": "1500",
+                                                        "api_limit": "600",
+                                                        "output_bucket": target_bucket_name,
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "u_case",
+                                                        "coordinate_transform": "true",
+                                                        "fullscans":""
+                                                    },
+                                                    tags = None,
+                                                    securitygroups = [ lambda_securitygroup ],
+                                                    schedule = "05 2 * * ? *"
+                                                   )
+                          )
+
+
+        servicenow_sn_customerservice_case = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
                            description = "ServiceNow haku taululle sn_customerservice_case",
                            path = "lambda/servicenow",
@@ -118,70 +148,102 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     timeout = 15,
                                                     memory = 2048,
                                                     environment={
-                                                        "secret_name": "credentials-servicenow-api",
+                                                        "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
                                                         "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
                                                         "output_split_limit": "1500",
                                                         "api_limit": "600",
                                                         "output_bucket": target_bucket_name,
-                                                        "output_path": "cmdb_ci_service",
-                                                        "output_filename": "servicenow_sn_customerservice_case",
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "sn_customerservice_case",
                                                         "coordinate_transform": "true",
-                                                        "fullscans":"",
-                                                        "add_path_ym": "true"
+                                                        "fullscans":""
                                                     },
                                                     tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
-                                                    schedule = "0 10 1 * ? *"
+                                                    schedule = "10 2 * * ? *"
                                                    )
                           )
 
 
-        l2 = NodejsLambdaFunction(self,
-                             id = "testi2",
-                             path = "lambda/testi2",
-                             handler = "testi2.lambda_handler",
-                             description = "Testilambdan kuvaus",
-                             role = lambda_role,
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout = 2, 
-                                                      environment = {
-                                                          "target_bucket": target_bucket_name,
-                                                      },
-                                                      tags = None,
-                                                      securitygroups = [ lambda_securitygroup ],
-                                                      schedule = "0 10 20 * ? *"
-                                                     )
-                            )
+        servicenow_cmdb_ci_service = JavaLambdaFunction(self,
+                           id = "servicenow-cmdb_ci_service",
+                           description = "ServiceNow haku taululle cmdb_ci_service",
+                           path = "lambda/servicenow",
+                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+                           role = lambda_role,
+                           props = LambdaProperties(vpc = vpc,
+                                                    timeout = 15,
+                                                    memory = 2048,
+                                                    environment={
+                                                        "secret_name": f"api-servicenow-{environment}",
+                                                        "query_string_default": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
+                                                        "query_string_date": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
+                                                        "output_split_limit": "1500",
+                                                        "api_limit": "600",
+                                                        "output_bucket": target_bucket_name,
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "cmdb_ci_service",
+                                                        "coordinate_transform": "true",
+                                                        "fullscans":""
+                                                    },
+                                                    tags = None,
+                                                    securitygroups = [ lambda_securitygroup ],
+                                                    schedule = "15 2  * ? *"
+                                                   )
+                          )
 
 
 
-        c1 = GlueJdbcConnection(self,
-                                id = "testi3-connection",
-                                vpc = vpc,
-                                security_groups = [ glue_securitygroup ],
-                                properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
-                                    "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
-                                    "JDBC_DRIVER_JAR_URI": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
-                                    "SECRET_ID": f"db-sampo-oracle-{environment}"
-                                })
 
-        g1 = PythonSparkGlueJob(self,
-                 id = "testi3", 
-                 path = "glue/testi3/testi3.py",
-                 timeout = 1,
-                 description = "Glue jobin kuvaus",
-                 worker = "G 1X",
-                 version = None,
-                 role = glue_role,
-                 tags = None,
-                 arguments = None,
-                 connections = [ c1.connection ],
-                 enable_spark_ui = False,
-                 schedule = "0 12 24 * ? *",
-                 schedule_description = "Normaali ajastus"
-        )
+
+
+
+        # l2 = NodejsLambdaFunction(self,
+        #                      id = "testi2",
+        #                      path = "lambda/testi2",
+        #                      handler = "testi2.lambda_handler",
+        #                      description = "Testilambdan kuvaus",
+        #                      role = lambda_role,
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout = 2, 
+        #                                               environment = {
+        #                                                   "target_bucket": target_bucket_name,
+        #                                               },
+        #                                               tags = None,
+        #                                               securitygroups = [ lambda_securitygroup ],
+        #                                               schedule = "0 10 20 * ? *"
+        #                                              )
+        #                     )
+
+
+
+        # c1 = GlueJdbcConnection(self,
+        #                         id = "testi3-connection",
+        #                         vpc = vpc,
+        #                         security_groups = [ glue_securitygroup ],
+        #                         properties = {
+        #                             "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
+        #                             "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
+        #                             "JDBC_DRIVER_JAR_URI": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
+        #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
+        #                         })
+        # g1 = PythonSparkGlueJob(self,
+        #          id = "testi3", 
+        #          path = "glue/testi3/testi3.py",
+        #          timeout = 1,
+        #          description = "Glue jobin kuvaus",
+        #          worker = "G 1X",
+        #          version = None,
+        #          role = glue_role,
+        #          tags = None,
+        #          arguments = None,
+        #          connections = [ c1.connection ],
+        #          enable_spark_ui = False,
+        #          schedule = "0 12 24 * ? *",
+        #          schedule_description = "Normaali ajastus"
+        # )
 
 
 

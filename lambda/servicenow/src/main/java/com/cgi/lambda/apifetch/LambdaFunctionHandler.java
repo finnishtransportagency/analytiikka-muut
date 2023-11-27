@@ -63,7 +63,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 	@Override
 	public String handleRequest(Map<String, Object> input, Context context) {
 
-		this.pathYearMonthDay = DateTime.now().toString("YYYY/MM/DD");
+		this.pathYearMonthDay = DateTime.now().toString("YYYY/MM/DD/");
 		//this.runYearMonth = DateTime.now().toString("YYYY-MM");
 		//String t = System.getenv("add_path_ym");
 		//if ("0".equals(t) || "false".equalsIgnoreCase(t)) {
@@ -88,6 +88,13 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		this.outputBucket = System.getenv("output_bucket");
 		this.outputPath = System.getenv("output_path");
 		this.outputFileName = System.getenv("output_filename");
+
+		if ((this.outputBucket == null) ||
+			(this.outputPath == null) ||
+			(this.outputFileName == null)) {
+			this.logger.log("Some output path parameters are missing. Bucket = '" + this.outputBucket + "', path = '" + this.outputPath + "', filename = '" + this.outputFileName + "'");
+			return "";
+		}
 
 		// Manifest
 		//this.manifestBucket = System.getenv("manifest_bucket"); 
@@ -128,8 +135,6 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 			return "";
 		}
 
-
-
 		String datein = "";
 		String startdatein = "";
 		String enddatein = "";
@@ -144,14 +149,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 			enddatein = getDate(input, "enddate");
 			this.logger.log("input enddate:  '" + enddatein + "'\n");
 		}
-
-
-
-
-
-
-
-
+		
 		DateTime startDate = null;
 		DateTime endDate = null;
 		
@@ -295,13 +293,12 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		//		retval.path = this.outputPath + this.runYearMonth + "/";
 		//	}
 		//}
-		retval.path += this.pathYearMonthDay + "/";
+		retval.path += this.outputFileName + "/" + this.pathYearMonthDay;
 		retval.timestamp = "" + DateTime.now().getMillis();
 		retval.sourceName =  sourceName;
 		retval.fullscanned = this.isFullscan(sourceName);
 		retval.fileName = "table." + sourceName + "." + retval.timestamp + ".batch." + retval.timestamp + ".fullscanned." + retval.fullscanned + ".json";
 		return retval; 
-
 	}
 
 	

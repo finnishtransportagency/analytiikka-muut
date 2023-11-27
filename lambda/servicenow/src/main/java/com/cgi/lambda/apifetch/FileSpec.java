@@ -10,5 +10,4 @@ public class FileSpec {
 	public String fileName = "";
 	public boolean fullscanned = false;
 	
-	
 }
