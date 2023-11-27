@@ -63,6 +63,8 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 	@Override
 	public String handleRequest(Map<String, Object> input, Context context) {
 
+		this.region = System.getenv("AWS_REGION");
+
 		this.pathYearMonthDay = DateTime.now().toString("YYYY/MM/DD/");
 		//this.runYearMonth = DateTime.now().toString("YYYY-MM");
 		//String t = System.getenv("add_path_ym");
@@ -74,8 +76,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		this.logger = new SimpleLambdaLogger(this.context);
 
 		// TUnnukset- secret
-		String secretArn = System.getenv("secret_arn");
-		this.region = System.getenv("region");
+		String secretName = System.getenv("secret_name");
 
 		// API vaatimukset
 		String queryStringDefault = System.getenv("query_string_default");
@@ -117,7 +118,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, Object>
 		// Tunnusten ja url haku
 		try {
 			SecretsManagerClient secretsClient = SecretsManagerClient.builder().region(Region.of(this.region)).build();
-			GetSecretValueRequest valueRequest = GetSecretValueRequest.builder().secretId(secretArn).build();
+			GetSecretValueRequest valueRequest = GetSecretValueRequest.builder().secretId(secretName).build();
 			GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
 			String secretJson = valueResponse.secretString();
 
