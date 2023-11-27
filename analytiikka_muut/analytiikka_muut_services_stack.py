@@ -190,7 +190,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     },
                                                     tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
-                                                    schedule = "15 2  * ? *"
+                                                    schedule = "15 2 * * ? *"
                                                    )
                           )
 
