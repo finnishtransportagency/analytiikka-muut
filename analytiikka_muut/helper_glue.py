@@ -257,7 +257,7 @@ class PythonShellGlueJob(Construct):
                                                glue_version = aws_glue_alpha.GlueVersion.V3_0,
                                                python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
                                                #script = aws_glue_alpha.Code.from_asset(get_path(path))
-                                               script = aws_glue_alpha.Code.from_bucket(script_bucket_name, path)
+                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, path)
                                            ),
                                            description = description,
                                            default_arguments = default_arguments,
