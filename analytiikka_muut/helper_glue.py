@@ -160,7 +160,7 @@ class PythonSparkGlueJob(Construct):
                                            ),
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
                                                glue_version = get_version(version),
-                                               python_version = aws_glue_alpha.PythonVersion.THREE,
+                                               # python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
                                                script = aws_glue_alpha.Code.from_asset(get_path(path))
                                            ),
                                            description = description,
@@ -234,8 +234,8 @@ class PythonShellGlueJob(Construct):
                                            id = id,
                                            job_name = id,
                                            executable = aws_glue_alpha.JobExecutable.python_shell(
-                                               # glue_version = get_version(version),
-                                               python_version = aws_glue_alpha.PythonVersion.THREE,
+                                               glue_version = aws_glue_alpha.GlueVersion.V3_0,
+                                               python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
                                                script = aws_glue_alpha.Code.from_asset(get_path(path)),
                                                runtime = aws_glue_alpha.Runtime.of("3.9")
                                            ),
