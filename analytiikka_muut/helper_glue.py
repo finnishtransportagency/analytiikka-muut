@@ -234,19 +234,19 @@ class PythonShellGlueJob(Construct):
                                            id = id,
                                            job_name = id,
                                            executable = aws_glue_alpha.JobExecutable.python_shell(
-                                               glue_version = get_version(version),
+                                               # glue_version = get_version(version),
                                                python_version = aws_glue_alpha.PythonVersion.THREE,
                                                script = aws_glue_alpha.Code.from_asset(get_path(path)),
-                                               runtime = aws_glue_alpha.Runtime.of("3.11")
+                                               runtime = aws_glue_alpha.Runtime.of("3.9")
                                            ),
                                            description = description,
                                            default_arguments = arguments,
                                            role = role,
-                                           worker_type = get_worker_type(worker),
-                                           worker_count = worker_count,
+                                           # worker_type = get_worker_type(worker),
+                                           # worker_count = worker_count,
                                            max_retries = 0,
                                            timeout = get_timeout(timeout),
-                                           max_concurrent_runs = 2
+                                           max_concurrent_runs = 1
 
                                            )
 
