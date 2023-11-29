@@ -211,7 +211,7 @@ class AnalytiikkaMuutServicesStack(Stack):
 
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
-                                             path = "glue/trex-api-reader/trex-api-glue-job-script.py",
+                                             path = "glue/trex_api_reader/trex_api_glue_job_script.py",
                                              timeout = 300,
                                              description = "Get data from trex API to S3",
                                              role = glue_role,
@@ -221,7 +221,7 @@ class AnalytiikkaMuutServicesStack(Stack):
 
         trex_api_reader_lambda = PythonLambdaFunction(self,
                              id = "trex-api-reader",
-                             path = "lambda/trex-api-reader",
+                             path = "lambda/trex_api_reader",
                              index = "trex_api_reader.py",
                              handler = "trex_api_reader.lambda_handler",
                              description = "Read Trex API and if needed start Glue Job to read API",
