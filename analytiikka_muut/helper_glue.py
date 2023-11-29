@@ -236,8 +236,7 @@ class PythonShellGlueJob(Construct):
                                            executable = aws_glue_alpha.JobExecutable.python_shell(
                                                glue_version = aws_glue_alpha.GlueVersion.V3_0,
                                                python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
-                                               script = aws_glue_alpha.Code.from_asset(get_path(path)),
-                                               runtime = aws_glue_alpha.Runtime.of("3.9")
+                                               script = aws_glue_alpha.Code.from_asset(get_path(path))
                                            ),
                                            description = description,
                                            default_arguments = arguments,
