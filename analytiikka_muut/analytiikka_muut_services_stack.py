@@ -76,7 +76,16 @@ class AnalytiikkaMuutServicesStack(Stack):
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
 
 
-        #
+        glue_jdbc_common_connection = GlueJdbcConnection(self,
+                                id = "glue-jdbc-common-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:driver://<host>:<port>/<db>"
+                                }
+        )
+
+
         # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
         #
 
@@ -209,12 +218,19 @@ class AnalytiikkaMuutServicesStack(Stack):
                                 })
 
 
+        trex_tags = [
+            { "project": "trex" }
+        ]
+
+
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
                                              path = "glue/trex_api_reader/trex_api_glue_job_script.py",
-                                             timeout_min = 5,
+                                             timeout_min = 300,
                                              description = "Get data from trex API to S3",
-                                             role = glue_role
+                                             role = glue_role,
+                                             tags = trex_tags,
+                                             connections = [ glue_jdbc_common_connection ]
                                              )
 
         trex_api_reader_lambda = PythonLambdaFunction(self,
@@ -232,14 +248,11 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                           "API_STATE_BUCKET": temp_bucket_name,
                                                           "GLUE_JOB_NAME": "trex-api-read-glue-job",
                                                           "TREX_API_URL": "https://api.vayla.fi/trex/rajapinta/taitorakenne/v1/",
-                                                          "RAKENTEET": "silta,melueste,laituri",
+                                                          "RAKENTEET": "silta",
                                                           "PUBLIC_API_URL": "https://avoinapi.vaylapilvi.fi/vaylatiedot/wfs?request=getfeature&typename=taitorakenteet:silta&SRSNAME=EPSG:4326&outputFormat=csv",
                                                           "TIIRA_API_URL": "https://api.vayla.fi/trex/rajapinta/tiira/1.0/"
                                                       },
-                                                      tags = [
-                                                          { "domain": "rata" },
-                                                          { "project": "trex" }
-                                                      ],
+                                                      tags = trex_tags,
                                                       securitygroups = [ lambda_securitygroup ],
                                                       schedule = "15 0 * * ? *"
                                                      )

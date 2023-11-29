@@ -215,8 +215,10 @@ class PythonShellGlueJob(Construct):
                  role: aws_iam.Role = None,
                  tags: dict = None,
                  arguments: dict = None,
+                 connections: list = None,
                  schedule: str = None,
-                 schedule_description: str = None
+                 schedule_description: str = None,
+                 include_standard_libraries: bool = True
                  ):
         super().__init__(scope, id)
 
@@ -224,6 +226,15 @@ class PythonShellGlueJob(Construct):
         https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
         """
+
+        default_arguments = None
+        if arguments != None:
+            default_arguments = arguments.copy()
+        if include_standard_libraries:
+            if not "library-set" in default_arguments:
+                default_arguments["library-set"] = "analytics"
+
+
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -233,12 +244,12 @@ class PythonShellGlueJob(Construct):
                                                script = aws_glue_alpha.Code.from_asset(get_path(path))
                                            ),
                                            description = description,
-                                           default_arguments = arguments,
+                                           default_arguments = default_arguments,
                                            role = role,
                                            max_retries = 0,
                                            timeout = get_timeout(timeout_min),
-                                           max_concurrent_runs = 1
-
+                                           max_concurrent_runs = 1,
+                                           connections = connections
                                            )
 
         add_tags(self.job, tags)
