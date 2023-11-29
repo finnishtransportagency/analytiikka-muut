@@ -212,7 +212,6 @@ class PythonShellGlueJob(Construct):
                  path: str,
                  timeout_min: any,
                  description: str = None,
-                 worker_count: int = None,
                  role: aws_iam.Role = None,
                  tags: dict = None,
                  arguments: dict = None,
@@ -225,9 +224,6 @@ class PythonShellGlueJob(Construct):
         https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
         """
-        if worker_count == 1:
-            worker = "STANDARD"
-
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,

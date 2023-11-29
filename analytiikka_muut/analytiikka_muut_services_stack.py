@@ -214,9 +214,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                              path = "glue/trex_api_reader/trex_api_glue_job_script.py",
                                              timeout_min = 5,
                                              description = "Get data from trex API to S3",
-                                             role = glue_role,
-                                             worker = "STANDARD",
-                                             worker_count = 1
+                                             role = glue_role
                                              )
 
         trex_api_reader_lambda = PythonLambdaFunction(self,
