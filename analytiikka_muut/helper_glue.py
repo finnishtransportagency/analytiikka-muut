@@ -234,6 +234,10 @@ class PythonShellGlueJob(Construct):
             if default_arguments != None:
                 if not "library-set" in default_arguments:
                     default_arguments["library-set"] = "analytics"
+            else:
+                default_arguments = {
+                    "library-set": "analytics"
+                    }
 
 
         self.job = aws_glue_alpha.Job(self, 
