@@ -43,6 +43,8 @@ def get_worker_type(worker: str) -> aws_glue_alpha.WorkerType:
         value = aws_glue_alpha.WorkerType.G_025_X
     elif worker == "Z 2X":
         value = aws_glue_alpha.WorkerType.Z_2_X
+    elif worker == "STANDARD":
+        value = aws_glue_alpha.WorkerType.STANDARD
     return(value)
 
 """
@@ -87,6 +89,7 @@ class GlueJdbcConnection(Construct):
     def __init__(self,
                  scope: Construct, 
                  id: str, 
+                 description: str = None,
                  vpc: any = None,
                  security_groups: list = None,
                  properties: dict = None
@@ -98,6 +101,7 @@ class GlueJdbcConnection(Construct):
 
         self.connection = aws_glue_alpha.Connection(self,
                                                     id = id,
+                                                    description = description,
                                                     connection_name = id,
                                                     type = aws_glue_alpha.ConnectionType.JDBC,
                                                     properties = properties,
@@ -210,6 +214,7 @@ class PythonShellGlueJob(Construct):
                  description: str = None,
                  worker: str = None,
                  version: str = None,
+                 worker_count: int = None,
                  role: aws_iam.Role = None,
                  tags: dict = None,
                  arguments: dict = None,
@@ -222,6 +227,9 @@ class PythonShellGlueJob(Construct):
         https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
         """
+        if worker_count == 1:
+            worker = "STANDARD"
+
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -235,7 +243,7 @@ class PythonShellGlueJob(Construct):
                                            default_arguments = arguments,
                                            role = role,
                                            worker_type = get_worker_type(worker),
-                                           worker_count = 2,
+                                           worker_count = worker_count,
                                            max_retries = 0,
                                            timeout = get_timeout(timeout),
                                            max_concurrent_runs = 2

@@ -197,9 +197,59 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
 
+        glue_common_jdbc_connection = GlueJdbcConnection(self,
+                                id = "common-jdbc-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                description = "Dummy connection to allow glue job to access internet through vpc",
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
+                                    "USERNAME": "username",
+                                    "PASSWORD": "password"
+                                })
 
 
+        trex_api_reader_glue = PythonShellGlueJob(self,
+                                             id = "trex-api-read-glue-job", 
+                                             path = "glue/trex-api-reader/trex-api-glue-job-script.py",
+                                             timeout = 300,
+                                             description = "Get data from trex API to S3",
+                                             role = glue_role,
+                                             worker = "STANDARD",
+                                             worker_count = 1
+                                             )
 
+        trex_api_reader_lambda = PythonLambdaFunction(self,
+                             id = "trex-api-reader",
+                             path = "lambda/trex-api-reader",
+                             index = "trex_api_reader.py",
+                             handler = "trex_api_reader.lambda_handler",
+                             description = "Read Trex API and if needed start Glue Job to read API",
+                             role = lambda_role,
+                             props = LambdaProperties(vpc = vpc,
+                                                      timeout = 900,
+                                                      memory = 512, 
+                                                      environment = {
+                                                          "FILE_LOAD_BUCKET": target_bucket_name,
+                                                          "API_STATE_BUCKET": temp_bucket_name,
+                                                          "GLUE_JOB_NAME": "trex-api-read-glue-job",
+                                                          "TREX_API_URL": "https://api.vayla.fi/trex/rajapinta/taitorakenne/v1/",
+                                                          "RAKENTEET": "silta,melueste,laituri",
+                                                          "PUBLIC_API_URL": "https://avoinapi.vaylapilvi.fi/vaylatiedot/wfs?request=getfeature&typename=taitorakenteet:silta&SRSNAME=EPSG:4326&outputFormat=csv",
+                                                          "TIIRA_API_URL": "https://api.vayla.fi/trex/rajapinta/tiira/1.0/"
+                                                      },
+                                                      tags = [
+                                                          { "domain": "rata" },
+                                                          { "project": "trex" }
+                                                      ],
+                                                      securitygroups = [ lambda_securitygroup ],
+                                                      schedule = "15 0 * * ? *"
+                                                     )
+                            )
+
+        
+        
+        
         # l2 = NodejsLambdaFunction(self,
         #                      id = "testi2",
         #                      path = "lambda/testi2",
@@ -244,7 +294,6 @@ class AnalytiikkaMuutServicesStack(Stack):
         #          schedule = "0 12 24 * ? *",
         #          schedule_description = "Normaali ajastus"
         # )
-
 
 
 
