@@ -203,7 +203,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                 id = "common-jdbc-connection",
                                 vpc = vpc,
                                 security_groups = [ glue_securitygroup ],
-                                description = "Dummy connection to allow glue job to access internet through vpc",
+                                description = "Common connection to allow glue job to access internet through vpc",
                                 properties = {
                                     "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
                                     "USERNAME": "username",
@@ -215,9 +215,12 @@ class AnalytiikkaMuutServicesStack(Stack):
             { "project": "trex" }
         ]
 
+        script_bucket = aws_s3.Bucket.from_bucket_name(self, "script-bucket", bucket_name = driver_bucket_name)
+
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
                                              path = "glue/trex_api_reader/trex_api_glue_job_script.py",
+                                             script_bucket = script_bucket,
                                              timeout_min = 300,
                                              description = "Get data from trex API to S3",
                                              role = glue_role,

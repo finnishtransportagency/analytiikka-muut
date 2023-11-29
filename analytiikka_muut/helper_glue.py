@@ -3,6 +3,8 @@ from aws_cdk import (
     aws_ec2,
     aws_glue,
     aws_glue_alpha,
+    aws_s3,
+    aws_s3_deployment,
     Duration,
     Tags
 )
@@ -210,7 +212,8 @@ class PythonShellGlueJob(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
-                 timeout_min: any,
+                 script_bucket: aws_s3.Bucket,
+                 timeout_min: int,
                  description: str = None,
                  role: aws_iam.Role = None,
                  tags: dict = None,
@@ -239,6 +242,10 @@ class PythonShellGlueJob(Construct):
                     "library-set": "analytics"
                     }
 
+        deployment = aws_s3_deployment.BucketDeployment(self, f"{id}-deploy",
+            sources = [ aws_s3_deployment.Source.asset(get_path(path)) ],
+            destination_bucket = script_bucket
+        )
 
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
@@ -246,7 +253,8 @@ class PythonShellGlueJob(Construct):
                                            executable = aws_glue_alpha.JobExecutable.python_shell(
                                                glue_version = aws_glue_alpha.GlueVersion.V3_0,
                                                python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
-                                               script = aws_glue_alpha.Code.from_asset(get_path(path))
+                                               #script = aws_glue_alpha.Code.from_asset(get_path(path))
+                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket.bucket_name, path)
                                            ),
                                            description = description,
                                            default_arguments = default_arguments,
