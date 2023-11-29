@@ -75,6 +75,8 @@ Polku
 def get_path(path: str) -> os.path:
     return(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path))
 
+def get_directory(path: str) -> os.path:
+    return(os.path.dirname(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)))
 
 
 
@@ -243,7 +245,7 @@ class PythonShellGlueJob(Construct):
                     }
 
         deployment = aws_s3_deployment.BucketDeployment(self, f"{id}-deploy",
-            sources = [ aws_s3_deployment.Source.asset(get_path(path)) ],
+            sources = [ aws_s3_deployment.Source.asset(get_directory(path)) ],
             destination_bucket = script_bucket
         )
 
