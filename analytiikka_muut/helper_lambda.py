@@ -40,8 +40,8 @@ class LambdaProperties:
     def __init__(self, 
                  vpc: aws_ec2.Vpc = None, 
                  securitygroups = None, 
-                 timeout: int = None, 
-                 memory: int = None, 
+                 timeout_min: int = None, 
+                 memory_mb: int = None, 
                  environment: dict = None, 
                  tags: dict = None, 
                  schedule: str = None):
@@ -51,8 +51,8 @@ class LambdaProperties:
             selected = vpc.select_subnets()
             self.subnets = aws_ec2.SubnetSelection(subnets = selected.subnets)
         self.securitygroups = securitygroups
-        self.timeout = Duration.minutes(timeout)
-        self.memory = memory
+        self.timeout_min = Duration.minutes(timeout_min)
+        self.memory_mb = memory_mb
         self.environment = environment
         self.tags = tags
         self.schedule = schedule
@@ -119,8 +119,8 @@ class PythonLambdaFunction(Construct):
             role = role,
             vpc = props.vpc,
             security_groups = props.securitygroups,
-            timeout = props.timeout,
-            memory_size = props.memory,
+            timeout = props.timeout_min,
+            memory_size = props.memory_mb,
             environment = props.environment,
             log_retention = aws_logs.RetentionDays.THREE_MONTHS
             )
@@ -177,8 +177,8 @@ class JavaLambdaFunction(Construct):
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
                                             runtime = aws_lambda.Runtime.JAVA_11,
-                                            timeout = props.timeout,
-                                            memory_size = props.memory,
+                                            timeout = props.timeout_min,
+                                            memory_size = props.memory_mb,
                                             environment = props.environment,
                                             role = role
                                            )
@@ -218,8 +218,8 @@ class NodejsLambdaFunction(Construct):
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
                                             runtime = aws_lambda.Runtime.NODEJS_18_X,
-                                            timeout = props.timeout,
-                                            memory_size = props.memory,
+                                            timeout = props.timeout_min,
+                                            memory_size = props.memory_mb,
                                             environment = props.environment,
                                             role = role
                                            )

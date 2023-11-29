@@ -116,8 +116,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,
-                                                    timeout = 15,
-                                                    memory = 2048,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
                                                     environment={
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "u_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
@@ -145,8 +145,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,
-                                                    timeout = 15,
-                                                    memory = 2048,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
                                                     environment={
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
@@ -174,8 +174,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,
-                                                    timeout = 15,
-                                                    memory = 2048,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
                                                     environment={
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
@@ -227,8 +227,8 @@ class AnalytiikkaMuutServicesStack(Stack):
                              description = "Read Trex API and if needed start Glue Job to read API",
                              role = lambda_role,
                              props = LambdaProperties(vpc = vpc,
-                                                      timeout = 900,
-                                                      memory = 512, 
+                                                      timeout_min = 15,
+                                                      memory_mb = 512, 
                                                       environment = {
                                                           "FILE_LOAD_BUCKET": target_bucket_name,
                                                           "API_STATE_BUCKET": temp_bucket_name,

@@ -134,7 +134,7 @@ class PythonSparkGlueJob(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
-                 timeout: any,
+                 timeout_min: any,
                  description: str = None,
                  worker: str = None,
                  version: str = None,
@@ -169,7 +169,7 @@ class PythonSparkGlueJob(Construct):
                                            worker_type = get_worker_type(worker),
                                            worker_count = 2,
                                            max_retries = 0,
-                                           timeout = get_timeout(timeout),
+                                           timeout = get_timeout(timeout_min),
                                            max_concurrent_runs = 2,
                                            connections = connections
                                            )
@@ -184,7 +184,7 @@ class PythonSparkGlueJob(Construct):
                                         actions = [aws_glue.CfnTrigger.ActionProperty(
                                             arguments = arguments,
                                             job_name = id,
-                                            timeout = timeout
+                                            timeout = timeout_min
                                             )
                                         ],
                                         type = "SCHEDULED",
@@ -210,10 +210,8 @@ class PythonShellGlueJob(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
-                 timeout: any,
+                 timeout_min: any,
                  description: str = None,
-                 worker: str = None,
-                 version: str = None,
                  worker_count: int = None,
                  role: aws_iam.Role = None,
                  tags: dict = None,
@@ -241,10 +239,8 @@ class PythonShellGlueJob(Construct):
                                            description = description,
                                            default_arguments = arguments,
                                            role = role,
-                                           # worker_type = get_worker_type(worker),
-                                           # worker_count = worker_count,
                                            max_retries = 0,
-                                           timeout = get_timeout(timeout),
+                                           timeout = get_timeout(timeout_min),
                                            max_concurrent_runs = 1
 
                                            )
@@ -259,7 +255,7 @@ class PythonShellGlueJob(Construct):
                                         actions = [aws_glue.CfnTrigger.ActionProperty(
                                             arguments = arguments,
                                             job_name = id,
-                                            timeout = timeout
+                                            timeout = timeout_min
                                             )
                                         ],
                                         type = "SCHEDULED",
