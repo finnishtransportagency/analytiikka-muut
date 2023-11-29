@@ -212,7 +212,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
                                              path = "glue/trex_api_reader/trex_api_glue_job_script.py",
-                                             timeout = 300,
+                                             timeout_min = 5,
                                              description = "Get data from trex API to S3",
                                              role = glue_role,
                                              worker = "STANDARD",
