@@ -16,6 +16,7 @@ from analytiikka_muut.helper_lambda import *
 from analytiikka_muut.helper_glue import *
 
 
+# TODO: dev/prod parametrien haku jostain
 
 
 
@@ -76,14 +77,6 @@ class AnalytiikkaMuutServicesStack(Stack):
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
 
 
-        glue_jdbc_common_connection = GlueJdbcConnection(self,
-                                id = "glue-jdbc-common-connection",
-                                vpc = vpc,
-                                security_groups = [ glue_securitygroup ],
-                                properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:driver://<host>:<port>/<db>"
-                                }
-        )
 
 
         # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
@@ -222,7 +215,6 @@ class AnalytiikkaMuutServicesStack(Stack):
             { "project": "trex" }
         ]
 
-
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
                                              path = "glue/trex_api_reader/trex_api_glue_job_script.py",
@@ -230,7 +222,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                              description = "Get data from trex API to S3",
                                              role = glue_role,
                                              tags = trex_tags,
-                                             connections = [ glue_jdbc_common_connection ]
+                                             connections = [ glue_common_jdbc_connection.connection ]
                                              )
 
         trex_api_reader_lambda = PythonLambdaFunction(self,
