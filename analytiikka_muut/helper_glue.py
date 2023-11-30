@@ -75,8 +75,8 @@ Polku
 def get_path(path: str) -> os.path:
     return(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path))
 
-def get_directory(path: str) -> os.path:
-    return(os.path.dirname(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)))
+#def get_directory(path: str) -> os.path:
+#    return(os.path.dirname(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), path)))
 
 
 
@@ -138,6 +138,8 @@ class PythonSparkGlueJob(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
+                 index: str,
+                 script_bucket: aws_s3.Bucket,
                  timeout_min: any,
                  description: str = None,
                  worker: str = None,
@@ -156,6 +158,12 @@ class PythonSparkGlueJob(Construct):
         https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_glue/CfnJob.html
         execution_property=glue.CfnJob.ExecutionPropertyProperty(max_concurrent_runs=123)
         """
+        deployment = aws_s3_deployment.BucketDeployment(self, f"{id}-deploy",
+            sources = [ aws_s3_deployment.Source.asset(get_path(path)) ],
+            destination_bucket = script_bucket,
+            destination_key_prefix = path
+        )
+
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
                                            job_name = id,
@@ -165,7 +173,8 @@ class PythonSparkGlueJob(Construct):
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
                                                glue_version = get_version(version),
                                                # python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
-                                               script = aws_glue_alpha.Code.from_asset(get_path(path))
+                                               #script = aws_glue_alpha.Code.from_asset(get_path(path))
+                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
                                            ),
                                            description = description,
                                            default_arguments = arguments,

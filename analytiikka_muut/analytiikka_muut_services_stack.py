@@ -38,10 +38,10 @@ class AnalytiikkaMuutServicesStack(Stack):
         """
         properties = self.node.try_get_context(environment)
 
-        # Yhteinen: buketti jdbc- ajureille ja asetustiedostoille.
+        # Yhteinen: buketti jdbc- ajureille, glue skripteille jne.
         # Ajurit esim tyypin mukaan omiin polkuihin ( /oracle-driver/ojdbc8.jar, jne )
-        # Asetustiedostot mielellään jobin nimen mukaiseen polkuun tai /asetukset/<job>/
-        driver_bucket_name = properties["driver_bucket_name"]
+        script_bucket_name = properties["script_bucket_name"]
+        script_bucket = aws_s3.Bucket.from_bucket_name(self, "script-bucket", bucket_name = script_bucket_name)
         # ADE file bucket
         target_bucket_name = properties["ade_staging_bucket_name"]
         # Yhteinen temp- buketti
@@ -63,8 +63,8 @@ class AnalytiikkaMuutServicesStack(Stack):
         # print(f"services {environment}: properties = '{properties}'")
 
         # Lookup: VPC
-        vpcname = properties["vpc_name"]
-        vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name=vpcname)
+        vpc_name = properties["vpc_name"]
+        vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name = vpc_name)
         # print(f"services {environment}: vpc = '{vpc}'")
         
         # Lookup: Lambda security group
@@ -75,6 +75,19 @@ class AnalytiikkaMuutServicesStack(Stack):
         glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
         # Lookup: Glue rooli
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
+
+
+
+        glue_common_jdbc_connection = GlueJdbcConnection(self,
+                                id = "common-jdbc-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                description = "Common connection to allow glue job to access internet through vpc",
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
+                                    "USERNAME": "username",
+                                    "PASSWORD": "password"
+                                })
 
 
 
@@ -108,8 +121,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         #                     )
 
 
-        # Esimerkki 2: java lambda
-
+        # Servicenow: u_case
         servicenow_u_case = JavaLambdaFunction(self,
                            id = "servicenow-u_case",
                            description = "ServiceNow haku taululle u_case",
@@ -138,7 +150,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
-
+        # Servicenow: sn_customerservice_case
         servicenow_sn_customerservice_case = JavaLambdaFunction(self,
                            id = "servicenow-sn_customerservice_case",
                            description = "ServiceNow haku taululle sn_customerservice_case",
@@ -167,7 +179,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
-
+        # Servicenow: cmdb_ci_service
         servicenow_cmdb_ci_service = JavaLambdaFunction(self,
                            id = "servicenow-cmdb_ci_service",
                            description = "ServiceNow haku taululle cmdb_ci_service",
@@ -196,27 +208,12 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
-
-
-
-        glue_common_jdbc_connection = GlueJdbcConnection(self,
-                                id = "common-jdbc-connection",
-                                vpc = vpc,
-                                security_groups = [ glue_securitygroup ],
-                                description = "Common connection to allow glue job to access internet through vpc",
-                                properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
-                                    "USERNAME": "username",
-                                    "PASSWORD": "password"
-                                })
-
-
+        # Trex extra tags
         trex_tags = [
             { "project": "trex" }
         ]
 
-        script_bucket = aws_s3.Bucket.from_bucket_name(self, "script-bucket", bucket_name = driver_bucket_name)
-
+        # Trex reader, glue
         trex_api_reader_glue = PythonShellGlueJob(self,
                                              id = "trex-api-read-glue-job", 
                                              path = "glue/trex_api_reader",
@@ -229,6 +226,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                              connections = [ glue_common_jdbc_connection.connection ]
                                              )
 
+        # Trex reader, lambda
         trex_api_reader_lambda = PythonLambdaFunction(self,
                              id = "trex-api-reader",
                              path = "lambda/trex_api_reader",
@@ -276,32 +274,32 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
 
-        # c1 = GlueJdbcConnection(self,
-        #                         id = "testi3-connection",
-        #                         vpc = vpc,
-        #                         security_groups = [ glue_securitygroup ],
-        #                         properties = {
-        #                             "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
-        #                             "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
-        #                             "JDBC_DRIVER_JAR_URI": f"s3://{driver_bucket_name}/oracle-driver/ojdbc8.jar",
-        #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
-        #                         })
-        # g1 = PythonSparkGlueJob(self,
-        #          id = "testi3", 
-        #          path = "glue/testi3/testi3.py",
-        #          timeout = 1,
-        #          description = "Glue jobin kuvaus",
-        #          worker = "G 1X",
-        #          version = None,
-        #          role = glue_role,
-        #          tags = None,
-        #          arguments = None,
-        #          connections = [ c1.connection ],
-        #          enable_spark_ui = False,
-        #          schedule = "0 12 24 * ? *",
-        #          schedule_description = "Normaali ajastus"
-        # )
-
-
+        glue_sampo_oracle_connection = GlueJdbcConnection(self,
+                                id = "sampo-jdbc-oracle-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
+                                    "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
+                                    "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
+                                    "SECRET_ID": f"db-sampo-oracle-{environment}"
+                                })
+        g1 = PythonSparkGlueJob(self,
+                 id = "testi3", 
+                 path = "glue/testi3",
+                 index = "testi3.py",
+                 script_bucket = script_bucket,
+                 timeout = 1,
+                 description = "Glue jobin kuvaus",
+                 worker = "G 1X",
+                 version = None,
+                 role = glue_role,
+                 tags = None,
+                 arguments = None,
+                 connections = [ glue_sampo_oracle_connection.connection ],
+                 enable_spark_ui = False,
+                 schedule = "0 12 24 * ? *",
+                 schedule_description = "Normaali ajastus"
+        )
 
 
