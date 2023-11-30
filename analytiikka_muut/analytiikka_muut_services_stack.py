@@ -289,7 +289,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                  path = "glue/testi3",
                  index = "testi3.py",
                  script_bucket = script_bucket,
-                 timeout = 1,
+                 timeout_min = 1,
                  description = "Glue jobin kuvaus",
                  worker = "G 1X",
                  version = None,
