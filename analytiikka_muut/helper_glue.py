@@ -172,7 +172,7 @@ class PythonSparkGlueJob(Construct):
                                            ),
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
                                                glue_version = get_version(version),
-                                               # python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
+                                               python_version = aws_glue_alpha.PythonVersion.THREE,
                                                #script = aws_glue_alpha.Code.from_asset(get_path(path))
                                                script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
                                            ),
