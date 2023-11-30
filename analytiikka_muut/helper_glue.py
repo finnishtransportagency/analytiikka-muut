@@ -214,8 +214,8 @@ class PythonShellGlueJob(Construct):
                  scope: Construct, 
                  id: str, 
                  path: str,
+                 index: str,
                  script_bucket: aws_s3.Bucket,
-                 script_bucket_name: str,
                  timeout_min: int,
                  description: str = None,
                  role: aws_iam.Role = None,
@@ -246,8 +246,9 @@ class PythonShellGlueJob(Construct):
                     }
 
         deployment = aws_s3_deployment.BucketDeployment(self, f"{id}-deploy",
-            sources = [ aws_s3_deployment.Source.asset(get_directory(path)) ],
-            destination_bucket = script_bucket
+            sources = [ aws_s3_deployment.Source.asset(get_path(path)) ],
+            destination_bucket = script_bucket,
+            destination_key_prefix = path
         )
 
         self.job = aws_glue_alpha.Job(self, 
@@ -257,7 +258,7 @@ class PythonShellGlueJob(Construct):
                                                glue_version = aws_glue_alpha.GlueVersion.V3_0,
                                                python_version = aws_glue_alpha.PythonVersion.THREE_NINE,
                                                #script = aws_glue_alpha.Code.from_asset(get_path(path))
-                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, path)
+                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
                                            ),
                                            description = description,
                                            default_arguments = default_arguments,
