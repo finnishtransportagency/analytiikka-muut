@@ -231,9 +231,11 @@ class AnalytiikkaMuutServicesStack(Stack):
                              id = "trex-api-reader",
                              path = "lambda/trex_api_reader",
                              index = "trex_api_reader.py",
+                             # HUOM: handler =  <index ilman .py> . <metodi>
                              handler = "trex_api_reader.lambda_handler",
                              description = "Read Trex API and if needed start Glue Job to read API",
                              role = lambda_role,
+                             runtime = "3.7",
                              props = LambdaProperties(vpc = vpc,
                                                       timeout_min = 15,
                                                       memory_mb = 512, 

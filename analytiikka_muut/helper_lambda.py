@@ -83,6 +83,58 @@ def add_schedule(self, function, id, schedule):
         rule.add_target(aws_events_targets.LambdaFunction(function))
 
 
+def get_pythonruntime(runtime: str):
+    lambda_runtime = aws_lambda.Runtime.PYTHON_3_11
+    if runtime != None:
+        if runtime == "3.7":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_7
+        elif runtime == "3.8":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_8
+        elif runtime == "3.9":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_9
+        elif runtime == "3.10":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_10
+        elif runtime == "3.11":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_11
+        elif runtime == "3.12":
+            lambda_runtime = aws_lambda.Runtime.PYTHON_3_12
+    return(lambda_runtime)
+
+def get_noderuntime(runtime: str):
+    lambda_runtime = aws_lambda.Runtime.NODEJS_18_X
+    if runtime != None:
+        if runtime == "10":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_10_X
+        elif runtime == "12":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_12_X
+        elif runtime == "14":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_14_X
+        elif runtime == "16":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_16_X
+        elif runtime == "18":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_18_X
+        elif runtime == "20":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_20_X
+        elif runtime == "LATEST":
+            lambda_runtime = aws_lambda.Runtime.NODEJS_LATEST
+    return(lambda_runtime)
+
+
+def get_javaruntime(runtime: str):
+    lambda_runtime = aws_lambda.Runtime.JAVA_11
+    if runtime != None:
+        if runtime == "8":
+            lambda_runtime = aws_lambda.Runtime.JAVA_8
+        elif runtime == "11":
+            lambda_runtime = aws_lambda.Runtime.JAVA_11
+        elif runtime == "17":
+            lambda_runtime = aws_lambda.Runtime.JAVA_17
+        elif runtime == "21":
+            lambda_runtime = aws_lambda.Runtime.JAVA_21
+    return(lambda_runtime)
+
+
+
 
 
 
@@ -103,16 +155,19 @@ class PythonLambdaFunction(Construct):
                  handler: str,
                  description: str,
                  role: aws_iam.Role,
-                 props: LambdaProperties
+                 props: LambdaProperties,
+                 runtime: str = None
                  ):
         super().__init__(scope, id)
-        
+
+
+
         self.function = aws_lambda_python_alpha.PythonFunction(
             self, 
             id,
             function_name = id,
             description = description,
-            runtime = aws_lambda.Runtime.PYTHON_3_11,
+            runtime = get_pythonruntime(runtime),
             entry = path,
             index = index,
             handler = handler,
@@ -149,7 +204,8 @@ class JavaLambdaFunction(Construct):
                  jarname: str,
                  handler: str,
                  role: aws_iam.Role,
-                 props: LambdaProperties
+                 props: LambdaProperties,
+                 runtime: str = None
                  ):
         super().__init__(scope, id)
 
@@ -176,7 +232,7 @@ class JavaLambdaFunction(Construct):
                                             security_groups = props.securitygroups,
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
-                                            runtime = aws_lambda.Runtime.JAVA_11,
+                                            runtime = get_javaruntime(runtime),
                                             timeout = props.timeout_min,
                                             memory_size = props.memory_mb,
                                             environment = props.environment,
@@ -203,7 +259,8 @@ class NodejsLambdaFunction(Construct):
                  handler: str,
                  description: str,
                  role: aws_iam.Role,
-                 props: LambdaProperties
+                 props: LambdaProperties,
+                 runtime: str = None
                  ):
         super().__init__(scope, id)
 
@@ -217,7 +274,7 @@ class NodejsLambdaFunction(Construct):
                                             security_groups = props.securitygroups,
                                             log_retention = aws_logs.RetentionDays.THREE_MONTHS,
                                             handler = handler,
-                                            runtime = aws_lambda.Runtime.NODEJS_18_X,
+                                            runtime = get_noderuntime(runtime),
                                             timeout = props.timeout_min,
                                             memory_size = props.memory_mb,
                                             environment = props.environment,
