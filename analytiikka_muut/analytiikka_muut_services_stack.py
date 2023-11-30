@@ -78,16 +78,16 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
 
-        glue_common_jdbc_connection = GlueJdbcConnection(self,
-                                id = "common-jdbc-connection",
-                                vpc = vpc,
-                                security_groups = [ glue_securitygroup ],
-                                description = "Common connection to allow glue job to access internet through vpc",
-                                properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
-                                    "USERNAME": "username",
-                                    "PASSWORD": "password"
-                                })
+        # glue_common_jdbc_connection = GlueJdbcConnection(self,
+        #                         id = "common-jdbc-connection",
+        #                         vpc = vpc,
+        #                         security_groups = [ glue_securitygroup ],
+        #                         description = "Common connection to allow glue job to access internet through vpc",
+        #                         properties = {
+        #                             "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
+        #                             "USERNAME": "username",
+        #                             "PASSWORD": "password"
+        #                         })
 
 
 
@@ -208,51 +208,51 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                    )
                           )
 
-        # Trex extra tags
-        trex_tags = [
-            { "project": "trex" }
-        ]
-
-        # Trex reader, glue
-        trex_api_reader_glue = PythonShellGlueJob(self,
-                                             id = "trex-api-read-glue-job", 
-                                             path = "glue/trex_api_reader",
-                                             index = "trex_api_glue_job_script.py",
-                                             script_bucket = script_bucket,
-                                             timeout_min = 300,
-                                             description = "Get data from trex API to S3",
-                                             role = glue_role,
-                                             tags = trex_tags,
-                                             connections = [ glue_common_jdbc_connection.connection ]
-                                             )
-
-        # Trex reader, lambda
-        trex_api_reader_lambda = PythonLambdaFunction(self,
-                             id = "trex-api-reader",
-                             path = "lambda/trex_api_reader",
-                             index = "trex_api_reader.py",
-                             # HUOM: handler = vain metodi
-                             handler = "lambda_handler",
-                             description = "Read Trex API and if needed start Glue Job to read API",
-                             role = lambda_role,
-                             runtime = "3.7",
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout_min = 15,
-                                                      memory_mb = 512, 
-                                                      environment = {
-                                                          "FILE_LOAD_BUCKET": target_bucket_name,
-                                                          "API_STATE_BUCKET": temp_bucket_name,
-                                                          "GLUE_JOB_NAME": "trex-api-read-glue-job",
-                                                          "TREX_API_URL": "https://api.vayla.fi/trex/rajapinta/taitorakenne/v1/",
-                                                          "RAKENTEET": "silta",
-                                                          "PUBLIC_API_URL": "https://avoinapi.vaylapilvi.fi/vaylatiedot/wfs?request=getfeature&typename=taitorakenteet:silta&SRSNAME=EPSG:4326&outputFormat=csv",
-                                                          "TIIRA_API_URL": "https://api.vayla.fi/trex/rajapinta/tiira/1.0/"
-                                                      },
-                                                      tags = trex_tags,
-                                                      securitygroups = [ lambda_securitygroup ],
-                                                      schedule = "15 0 * * ? *"
-                                                     )
-                            )
+        # # Trex extra tags
+        # trex_tags = [
+        #     { "project": "trex" }
+        # ]
+        # 
+        # # Trex reader, glue
+        # trex_api_reader_glue = PythonShellGlueJob(self,
+        #                                      id = "trex-api-read-glue-job", 
+        #                                      path = "glue/trex_api_reader",
+        #                                      index = "trex_api_glue_job_script.py",
+        #                                      script_bucket = script_bucket,
+        #                                      timeout_min = 300,
+        #                                      description = "Get data from trex API to S3",
+        #                                      role = glue_role,
+        #                                      tags = trex_tags,
+        #                                      connections = [ glue_common_jdbc_connection.connection ]
+        #                                      )
+        # 
+        # # Trex reader, lambda
+        # trex_api_reader_lambda = PythonLambdaFunction(self,
+        #                      id = "trex-api-reader",
+        #                      path = "lambda/trex_api_reader",
+        #                      index = "trex_api_reader.py",
+        #                      # HUOM: handler = vain metodi
+        #                      handler = "lambda_handler",
+        #                      description = "Read Trex API and if needed start Glue Job to read API",
+        #                      role = lambda_role,
+        #                      runtime = "3.7",
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout_min = 15,
+        #                                               memory_mb = 512, 
+        #                                               environment = {
+        #                                                   "FILE_LOAD_BUCKET": target_bucket_name,
+        #                                                   "API_STATE_BUCKET": temp_bucket_name,
+        #                                                   "GLUE_JOB_NAME": "trex-api-read-glue-job",
+        #                                                   "TREX_API_URL": "https://api.vayla.fi/trex/rajapinta/taitorakenne/v1/",
+        #                                                   "RAKENTEET": "silta",
+        #                                                   "PUBLIC_API_URL": "https://avoinapi.vaylapilvi.fi/vaylatiedot/wfs?request=getfeature&typename=taitorakenteet:silta&SRSNAME=EPSG:4326&outputFormat=csv",
+        #                                                   "TIIRA_API_URL": "https://api.vayla.fi/trex/rajapinta/tiira/1.0/"
+        #                                               },
+        #                                               tags = trex_tags,
+        #                                               securitygroups = [ lambda_securitygroup ],
+        #                                               schedule = "15 0 * * ? *"
+        #                                              )
+        #                     )
 
         
         
@@ -276,32 +276,32 @@ class AnalytiikkaMuutServicesStack(Stack):
 
 
 
-        glue_sampo_oracle_connection = GlueJdbcConnection(self,
-                                id = "sampo-jdbc-oracle-connection",
-                                vpc = vpc,
-                                security_groups = [ glue_securitygroup ],
-                                properties = {
-                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
-                                    "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
-                                    "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
-                                    "SECRET_ID": f"db-sampo-oracle-{environment}"
-                                })
-        g1 = PythonSparkGlueJob(self,
-                 id = "testi3", 
-                 path = "glue/testi3",
-                 index = "testi3.py",
-                 script_bucket = script_bucket,
-                 timeout_min = 1,
-                 description = "Glue jobin kuvaus",
-                 worker = "G 1X",
-                 version = None,
-                 role = glue_role,
-                 tags = None,
-                 arguments = None,
-                 connections = [ glue_sampo_oracle_connection.connection ],
-                 enable_spark_ui = False,
-                 schedule = "0 12 24 * ? *",
-                 schedule_description = "Normaali ajastus"
-        )
+        # glue_sampo_oracle_connection = GlueJdbcConnection(self,
+        #                         id = "sampo-jdbc-oracle-connection",
+        #                         vpc = vpc,
+        #                         security_groups = [ glue_securitygroup ],
+        #                         properties = {
+        #                             "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
+        #                             "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
+        #                             "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
+        #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
+        #                         })
+        # g1 = PythonSparkGlueJob(self,
+        #          id = "testi3", 
+        #          path = "glue/testi3",
+        #          index = "testi3.py",
+        #          script_bucket = script_bucket,
+        #          timeout_min = 1,
+        #          description = "Glue jobin kuvaus",
+        #          worker = "G 1X",
+        #          version = None,
+        #          role = glue_role,
+        #          tags = None,
+        #          arguments = None,
+        #          connections = [ glue_sampo_oracle_connection.connection ],
+        #          enable_spark_ui = False,
+        #          schedule = "0 12 24 * ? *",
+        #          schedule_description = "Normaali ajastus"
+        # )
 
 
