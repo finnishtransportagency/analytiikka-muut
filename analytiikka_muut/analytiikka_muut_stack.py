@@ -50,14 +50,14 @@ class AnalytiikkaMuutStack(Stack):
                                  f"{projectname}-pipe",
                                  pipeline_name = f"{projectname}-pipe",
                                  cross_account_keys = True,
-                                 synth=ShellStep("Synth",
+                                 synth = ShellStep("Synth",
                                                  input=CodePipelineSource.git_hub(repo_string = gitrepo,
                                                                                   branch = gitbranch,
                                                                                   authentication = gitsecret.secret_value,
                                                                                   trigger = aws_codepipeline_actions.GitHubTrigger("WEBHOOK")
                                                  ),
                                                  
-                                                 commands=[
+                                                 commands = [
                                                      "npm install -g aws-cdk",
                                                      # "python -m pip install --upgrade pip"
                                                      "python -m pip install -r requirements.txt",
@@ -66,7 +66,7 @@ class AnalytiikkaMuutStack(Stack):
                                                 )
                                                 ,
                                  code_build_defaults = CodeBuildOptions(
-                                     role_policy=[
+                                     role_policy = [
                                          aws_iam.PolicyStatement(
                                              actions = [ "*" ],
                                              effect = aws_iam.Effect.ALLOW,
