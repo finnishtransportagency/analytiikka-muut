@@ -72,33 +72,6 @@ class AnalytiikkaMuutStack(Stack):
                                              effect = aws_iam.Effect.ALLOW,
                                              resources = [ "*" ]
                                          )
-                                         #,
-                                         #aws_iam.PolicyStatement(
-                                         #    sid = "AllowAssumeRole",
-                                         #    actions = [
-                                         #        "sts:Assumerole",
-                                         #        "iam:PassRole"
-                                         #        ],
-                                         #    effect = aws_iam.Effect.ALLOW,
-                                         #    resources = [
-                                         #        "arn:aws-cn:iam::*:role/cdk-hnb659fds-lookup-role-*",
-                                         #        "arn:aws-cn:iam::*:role/cdk-hnb659fds-image-publishing-*",
-                                         #        "arn:aws-cn:iam::*:role/cdk-hnb659fds-file-publishing-*",
-                                         #        "arn:aws-cn:iam::*:role/cdk-hnb659fds-deploy-role-*"
-                                         #       ]
-                                         #)
-                                         #,
-                                         #aws_iam.PolicyStatement(
-                                         #    actions = [
-                                         #        "ssm:GetParameter",
-                                         #        "ec2:DescribeVpcs",
-                                         #        "ec2:DescribeSubnets",
-                                         #        "ec2:DescribeRouteTables",
-                                         #        "ec2:DescribeVpnGateways"
-                                         #        ],
-                                         #    effect = aws_iam.Effect.ALLOW,
-                                         #    resources = ["*"]
-                                         #)
                                      ]
                                  )
                                 )

@@ -1,0 +1,13 @@
+{
+    "dev": {
+        "u_case-schedule": "",
+        "sn_customerservice_case-schedule": "",
+        "cmdb_ci_service-schedule": ""
+    },
+    "prod": {
+        "u_case-schedule": "05 2 * * ? *",
+        "sn_customerservice_case-schedule": "10 2 * * ? *",
+        "cmdb_ci_service-schedule": "15 2 * * ? *"
+    }
+
+}

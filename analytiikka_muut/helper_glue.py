@@ -116,6 +116,7 @@ class GlueJdbcConnection(Construct):
 
 
 
+
 """
 
 id: Ajon nimi

@@ -14,9 +14,10 @@ from constructs import Construct
 
 from analytiikka_muut.helper_lambda import *
 from analytiikka_muut.helper_glue import *
+from analytiikka_muut.helper_parameter import *
 
 
-# TODO: dev/prod parametrien haku jostain
+
 
 
 
@@ -31,7 +32,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                  construct_id: str,
                  environment: str,
                  **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, stack_name = construct_id, **kwargs)
 
         """
         Yhteiset arvot projektilta ja ympäristön mukaan
@@ -66,7 +67,7 @@ class AnalytiikkaMuutServicesStack(Stack):
         vpc_name = properties["vpc_name"]
         vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name = vpc_name)
         # print(f"services {environment}: vpc = '{vpc}'")
-        
+
         # Lookup: Lambda security group
         lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
         # Lookup: Lambda rooli
@@ -75,8 +76,8 @@ class AnalytiikkaMuutServicesStack(Stack):
         glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "GlueSecurityGroup", security_group_name = glue_security_group_name, vpc = vpc)
         # Lookup: Glue rooli
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
-
-
+        # Lookup: Glue common jdbc connection
+        # glue_common_jdbc_connection = aws_glue_alpha.Connection.from_connection_name(self, id = "common-jdbc-connection", connection_name = "common-jdbc-connection")
 
         # glue_common_jdbc_connection = GlueJdbcConnection(self,
         #                         id = "common-jdbc-connection",
@@ -132,7 +133,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
-                                                    environment={
+                                                    environment = {
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "u_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
                                                         "query_string_date": "u_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
@@ -146,7 +147,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     },
                                                     tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
-                                                    schedule = "05 2 * * ? *"
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "u_case-schedule")
                                                    )
                           )
 
@@ -161,7 +162,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
-                                                    environment={
+                                                    environment = {
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
                                                         "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
@@ -175,7 +176,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     },
                                                     tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
-                                                    schedule = "10 2 * * ? *"
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "sn_customerservice_case-schedule")
                                                    )
                           )
 
@@ -190,7 +191,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
-                                                    environment={
+                                                    environment = {
                                                         "secret_name": f"api-servicenow-{environment}",
                                                         "query_string_default": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
                                                         "query_string_date": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
@@ -204,7 +205,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                                                     },
                                                     tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
-                                                    schedule = "15 2 * * ? *"
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "cmdb_ci_service-schedule")
                                                    )
                           )
 
