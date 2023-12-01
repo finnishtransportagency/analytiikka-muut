@@ -23,8 +23,6 @@ glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Ei testattu
 
 
 
-
-
 Profiileihin kopioitu väyläpilven tilapäiset kredentiaalit
 
 npx cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile dev_LatausalueAdmin
