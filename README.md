@@ -29,7 +29,7 @@ npx cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --cloudformation-execution-poli
 
 npx cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile prod_LatausalueAdmin
 
-aws secretsmanager create-secret --name github-token --secret-string <github token> --profile dev_LatausalueAdmin
+aws secretsmanager create-secret --name analytiikka-github-token --secret-string <github token> --profile dev_LatausalueAdmin
 
 dev- tilille luotu parametri jossa prod- tilin id
 

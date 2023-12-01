@@ -42,7 +42,9 @@ class AnalytiikkaMuutStack(Stack):
         gitbranch = self.node.try_get_context('gitbranch')
         gittokensecretname = self.node.try_get_context('gittokensecretname')
         prodaccountparameter = self.node.try_get_context('prodaccountparameter')
-        prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
+        # prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
+        prodaccount = ssm.StringParameter.value_for_string_parameter(self, prodaccountparameter)
+
         gitsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "gittoken", secret_name = gittokensecretname)
 
         # Pipeline
