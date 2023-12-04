@@ -3,7 +3,8 @@ from aws_cdk import (
     Environment,
     aws_secretsmanager,
     aws_codepipeline_actions,
-    aws_iam
+    aws_iam,
+    Lazy
 )
 
 from aws_cdk.pipelines import (
@@ -44,9 +45,9 @@ class AnalytiikkaMuutStack(Stack):
         gitsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "gittoken", secret_name = gittokensecretname)
         
         prodaccountparameter = self.node.try_get_context('prodaccountparameter')
-        prodaccountparam = ssm.StringParameter.from_string_parameter_attributes(self, "prodaccount", parameter_name = prodaccountparameter)
-        prodaccount = prodaccountparam.string_value
-        #.value_from_lookup(self, prodaccountparameter)
+        #prodaccountparam = ssm.StringParameter.from_string_parameter_attributes(self, "prodaccount", parameter_name = prodaccountparameter)
+        #prodaccount = prodaccountparam.string_value
+        prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
 
         print(f"main: dev account = {devaccount}")
         print(f"main: prod account = {prodaccount}")
