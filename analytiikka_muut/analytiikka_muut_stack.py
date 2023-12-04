@@ -43,9 +43,9 @@ class AnalytiikkaMuutStack(Stack):
         gittokensecretname = self.node.try_get_context('gittokensecretname')
         prodaccountparameter = self.node.try_get_context('prodaccountparameter')
         
-        # prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
-        prodsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "prodaccount", secret_name = prodaccountparameter)
-        prodaccount = prodsecret.secret_value.plain_text
+        prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
+        # prodsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "prodaccount", secret_name = prodaccountparameter)
+        # prodaccount = prodsecret.secret_value.plain_text
 
         print(f"main: dev account = {devaccount}")
         print(f"main: prod account = {prodaccount}")
