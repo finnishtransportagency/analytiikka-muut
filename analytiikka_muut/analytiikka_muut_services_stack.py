@@ -64,9 +64,40 @@ class AnalytiikkaMuutServicesStack(Stack):
         # print(f"services {environment}: properties = '{properties}'")
 
         # Lookup: VPC
-        vpc_name = properties["vpc_name"]
-        vpc = aws_ec2.Vpc.from_lookup(self, "VPC", vpc_name = vpc_name)
+        vpc_id = properties["vpc_id"]
+        subnet1_id = properties["subnet1_id"]
+        subnet2_id = properties["subnet2_id"]
+        vpc = aws_ec2.Vpc.from_vpc_attributes(self, "VPC",
+                                              vpc_id = vpc_id,
+                                              availability_zones = [ "eu-west-1a", "eu-west-1b" ],
+                                              private_subnet_ids = [ subnet1_id, subnet2_id ] )
+
+        # Ilmeisesti lookup ei toimi, kokeile from_vpc_attributes()
+        # vpc_name = properties["vpc_name"]
+        # .from_lookup(self, "VPC", vpc_name = vpc_name)
         # print(f"services {environment}: vpc = '{vpc}'")
+
+        # Ossin esimerkki @ts
+        # constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+        #     super(scope, id, props);
+        #     const environment = id.split("-")[2]
+        #     const appname = id.split("-")[0]
+        #     const namingconvention = appname + "-" + environment
+        #     const vpcId=this.node.tryGetContext(`${environment}-vpcId`)
+        #     const isolatedSubnet1=this.node.tryGetContext(`${environment}-isolatedsubnet1`)
+        #     const isolatedsubnet2=this.node.tryGetContext(`${environment}-isolatedsubnet2`)
+        #     const az1=this.node.tryGetContext(`${environment}-az1`)
+        #     const az2=this.node.tryGetContext(`${environment}-az2`)
+        #     
+        #     const vpc = cdk.aws_ec2.Vpc.fromVpcAttributes(this, namingconvention + '-vpc', {
+        #         vpcId: vpcId,
+        #         availabilityZones: [az1,az2],
+        #         isolatedSubnetIds: [isolatedSubnet1,isolatedsubnet2]
+        #     });
+
+
+
+
 
         # Lookup: Lambda security group
         lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
@@ -127,7 +158,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            id = "servicenow-u_case",
                            description = "ServiceNow haku taululle u_case",
                            path = "lambda/servicenow",
-                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,
@@ -156,7 +187,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            id = "servicenow-sn_customerservice_case",
                            description = "ServiceNow haku taululle sn_customerservice_case",
                            path = "lambda/servicenow",
-                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,
@@ -185,7 +216,7 @@ class AnalytiikkaMuutServicesStack(Stack):
                            id = "servicenow-cmdb_ci_service",
                            description = "ServiceNow haku taululle cmdb_ci_service",
                            path = "lambda/servicenow",
-                           jarname = "servicenow-to-s3-lambda-1.0.0.jar",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
                            props = LambdaProperties(vpc = vpc,

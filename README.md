@@ -40,7 +40,7 @@ npx cdk deploy --profile dev_LatausalueAdmin
 
 
 
-
+HUOM: pitääkö laittaa cdk.context.json myös gittiin ?
 
 
 

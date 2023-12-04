@@ -209,6 +209,7 @@ class JavaLambdaFunction(Construct):
                  ):
         super().__init__(scope, id)
 
+
         func_code = aws_lambda.Code.from_asset(path = path,
                                                bundling = {
                                                    "command": [
