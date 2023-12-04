@@ -19,7 +19,7 @@
     "gitrepo": "finnishtransportagency/analytiikka-muut",
     "gitbranch": "master",
     "gittokensecretname": "analytiikka-github-token",
-    "prodaccountparameter": "prod-account",
+    "prodaccountparameter": "analytiikka-prod-account",
     "lambda_role_name": "vayla-lambda-base-role",
     "lambda_security_group_name": "vayla-lambda-base-SG",
     "glue_role_name": "vayla-glue-base-role",
