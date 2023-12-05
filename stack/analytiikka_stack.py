@@ -21,7 +21,10 @@ from constructs import Construct
 from stack.analytiikka_stage import AnalytiikkaStage
 
 """
-CICD stack
+Pipeline Stack
+
+Sama kaikille projekteille
+
 
 """
 class AnalytiikkaStack(Stack):
@@ -90,7 +93,7 @@ class AnalytiikkaStack(Stack):
                                                            )
 
         # Huom: pitää testata että tehdään vasta tuotantoliliparametrin lookupin jälkeen
-        if not prodaccount.startswith("dummy"):
+        if not prodaccount.startswith("dummy-value-for"):
 
             # Tuotanto stage
             prod_stage = pipeline.add_stage(AnalytiikkaStage(self,

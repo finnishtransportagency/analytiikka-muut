@@ -19,7 +19,8 @@ from stack.helper_parameter import *
 
 
 """
-Palvelut stack
+Service/resource Stack
+
 
 """
 class AnalytiikkaServicesStack(Stack):
@@ -92,9 +93,19 @@ class AnalytiikkaServicesStack(Stack):
 
 
 
-        #
-        # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
-        #
+        """
+        HUOM: Lisää tarvittavat resurssit tämän kommentin jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
+
+        Kaikille asetetaan automaattisesti tagit
+            Repository
+            Administrator
+            System Owner
+            System ID
+            Environment
+
+        Resurssikohtaisesti pitää antaa Project- tagi.
+
+        """
 
 
         # Esimerkki 1 python lambda
@@ -107,22 +118,22 @@ class AnalytiikkaServicesStack(Stack):
         #                      handler = "testi1.lambda_handler",
         #                      description = "Testilambdan kuvaus",
         #                      role = lambda_role,
+        #                      project_tag = "Testi 1",
         #                      props = LambdaProperties(vpc = vpc,
         #                                               timeout_min = 2, 
         #                                               environment = {
         #                                                   "target_bucket": target_bucket_name,
         #                                                   "dummy_input_value": "10001101101"
         #                                               },
-        #                                               tags = [
-        #                                                   { "testitag": "jotain" },
-        #                                                   { "toinen": "arvo" }
-        #                                               ],
+        #                                               tags = {
+        #                                                   "testitag": "jotain",
+        #                                                   "toinen": "arvo"
+        #                                               },
         #                                               securitygroups = [ lambda_securitygroup ],
         #                                               schedule = "0 10 20 * ? *"
         #                                              )
         #                     )
 
-        servicenow_tags = { "Project": "Palautteet / ServiceNow" }
         # Servicenow: u_case
         servicenow_u_case = JavaLambdaFunction(self,
                            id = "servicenow-u_case",
@@ -131,6 +142,7 @@ class AnalytiikkaServicesStack(Stack):
                            jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
+                           project_tag = "Palautteet / ServiceNow",
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
@@ -146,7 +158,7 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = servicenow_tags,
+                                                    tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "u_case-schedule")
                                                    )
@@ -160,6 +172,7 @@ class AnalytiikkaServicesStack(Stack):
                            jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
+                           project_tag = "Palautteet / ServiceNow",
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
@@ -175,7 +188,7 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = servicenow_tags,
+                                                    tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "sn_customerservice_case-schedule")
                                                    )
@@ -189,6 +202,7 @@ class AnalytiikkaServicesStack(Stack):
                            jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
                            handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
                            role = lambda_role,
+                           project_tag = "Palautteet / ServiceNow",
                            props = LambdaProperties(vpc = vpc,
                                                     timeout_min = 15,
                                                     memory_mb = 2048,
@@ -204,15 +218,12 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = servicenow_tags,
+                                                    tags = None,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "cmdb_ci_service-schedule")
                                                    )
                           )
 
-        # # Trex extra tags
-        # trex_tags = { "Project": "Trex" }
-        # 
         # # Trex reader, glue
         # trex_api_reader_glue = PythonShellGlueJob(self,
         #                                      id = "trex-api-read-glue-job", 
@@ -222,7 +233,8 @@ class AnalytiikkaServicesStack(Stack):
         #                                      timeout_min = 300,
         #                                      description = "Get data from trex API to S3",
         #                                      role = glue_role,
-        #                                      tags = trex_tags,
+        #                                      tags = None,
+        #                                      project_tag = "Trex",
         #                                      connections = [ glue_common_jdbc_connection.connection ]
         #                                      )
         # 
@@ -236,6 +248,7 @@ class AnalytiikkaServicesStack(Stack):
         #                      description = "Read Trex API and if needed start Glue Job to read API",
         #                      role = lambda_role,
         #                      runtime = "3.7",
+        #                      project_tag = "Trex",
         #                      props = LambdaProperties(vpc = vpc,
         #                                               timeout_min = 15,
         #                                               memory_mb = 512, 
@@ -248,7 +261,7 @@ class AnalytiikkaServicesStack(Stack):
         #                                                   "PUBLIC_API_URL": "https://avoinapi.vaylapilvi.fi/vaylatiedot/wfs?request=getfeature&typename=taitorakenteet:silta&SRSNAME=EPSG:4326&outputFormat=csv",
         #                                                   "TIIRA_API_URL": "https://api.vayla.fi/trex/rajapinta/tiira/1.0/"
         #                                               },
-        #                                               tags = trex_tags,
+        #                                               tags = None,
         #                                               securitygroups = [ lambda_securitygroup ],
         #                                               schedule = "15 0 * * ? *"
         #                                              )
@@ -263,6 +276,7 @@ class AnalytiikkaServicesStack(Stack):
         #                      handler = "testi2.lambda_handler",
         #                      description = "Testilambdan kuvaus",
         #                      role = lambda_role,
+        #                      project_tag = "Trex",
         #                      props = LambdaProperties(vpc = vpc,
         #                                               timeout = 2, 
         #                                               environment = {
@@ -275,7 +289,6 @@ class AnalytiikkaServicesStack(Stack):
         #                     )
 
 
-        # sampo_tags = { "Project": "Sampo" }
         # glue_sampo_oracle_connection = GlueJdbcConnection(self,
         #                         id = "sampo-jdbc-oracle-connection",
         #                         vpc = vpc,
@@ -286,7 +299,8 @@ class AnalytiikkaServicesStack(Stack):
         #                             "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
         #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
         #                         },
-        #                         tags = sampo_tags)
+        #                         project_tag = "Sampo",
+        #                         tags = None)
         # g1 = PythonSparkGlueJob(self,
         #          id = "testi3", 
         #          path = "glue/testi3",
@@ -297,7 +311,8 @@ class AnalytiikkaServicesStack(Stack):
         #          worker = "G 1X",
         #          version = None,
         #          role = glue_role,
-        #          tags = sampo_tags,
+        #          tags = None,
+        #          project_tag = "Sampo",
         #          arguments = None,
         #          connections = [ glue_sampo_oracle_connection.connection ],
         #          enable_spark_ui = False,

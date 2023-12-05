@@ -4,13 +4,15 @@
 
 Hakemistorakenne:
 
-analytiikka_muut/
+stack/
 
-analytiikka_muut_stack.py  cicd stack
-analytiikka_muut_stage.py  pipeline staget (= dev/prod)
-analytiikka_muut_services_stack.py  stage sisältämät palvelut. Uudet asiat lisätään tänne
+analytiikka_stack.py  cicd stack
+analytiikka_stage.py  pipeline staget (= dev/prod)
+analytiikka_services_stack.py  stage sisältämät palvelut. Uudet asiat lisätään tänne
 helper_glue.py  Apukoodi Glue- ajojen luontiin
 helper_lambda.py  Apukoodi Lambdojen luontiin
+helper_parameter.py  Apukoodi resurssien ympäristökohtaisten parametrien käyttöön
+helper_tags.py  Apukoodi Tagien lisäykseen
 
 lambda/xxx/  Jokaiselle lambdalle oma hakemisto. Jos python, hakemistossa pitää olla requirements.txt mutta se voi olla tyhjä jos ei tarvita. Testattu python, Java, node. Layerit eii testattu, lisäkirjastot ei testattu. Vpc ok.
 lambda/testi1/  Python testi
@@ -18,10 +20,12 @@ lambda/servicenow/  Servicenow api lukija, Java
 
 glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Python shell ja spark testattu. Connectin luonti ok, iimport eii testattu.
 
+lambda/xxx/ ja glue/xxx/ hakemistoihin voi luoda xxx_parameters.json nimisen tiedoston josta luetaan helposti kyseisen lambdan/jobin ympäristökohtaiset parametrit.
+Katso lisätiiedot stack/helper_parameter.py
 
 
 
-
+Asennus:
 
 Profiileihin kopioitu väyläpilven tilapäiset kredentiaalit
 
@@ -39,13 +43,16 @@ npx cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloud
 
 git commit &  push
 
-Deploy käsin kerran, kun valmis niin git commit & push riittää
 npx cdk deploy --profile dev_LatausalueAdmin
 
 
 
+HUOM: cdk synth luo cdk.context.json tiedoston jota ei tallenneta gittiin.
 
-HUOM: pitääkö laittaa cdk.context.json myös gittiin ?
+
+Normaali käyttö:
+
+git push master- branshiin käynnistää pipelinen joka asentaa kaiken.
 
 
 

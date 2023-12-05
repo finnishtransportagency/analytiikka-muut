@@ -150,6 +150,7 @@ class PythonLambdaFunction(Construct):
                  description: str,
                  role: aws_iam.Role,
                  props: LambdaProperties,
+                 project_tag: str,
                  runtime: str = None
                  ):
         super().__init__(scope, id)
@@ -174,7 +175,7 @@ class PythonLambdaFunction(Construct):
             log_retention = aws_logs.RetentionDays.THREE_MONTHS
             )
 
-        add_tags(self.function, props.tags)
+        add_tags(self.function, props.tags, project_tag = project_tag)
         add_schedule(self, self.function, id, props.schedule)
 
 
@@ -199,6 +200,7 @@ class JavaLambdaFunction(Construct):
                  handler: str,
                  role: aws_iam.Role,
                  props: LambdaProperties,
+                 project_tag: str,
                  runtime: str = None
                  ):
         super().__init__(scope, id)
@@ -234,7 +236,7 @@ class JavaLambdaFunction(Construct):
                                             role = role
                                            )
         
-        add_tags(self.function, props.tags)
+        add_tags(self.function, props.tags, project_tag = project_tag)
         add_schedule(self, self.function, id, props.schedule)
 
 
@@ -255,6 +257,7 @@ class NodejsLambdaFunction(Construct):
                  description: str,
                  role: aws_iam.Role,
                  props: LambdaProperties,
+                 project_tag: str,
                  runtime: str = None
                  ):
         super().__init__(scope, id)
@@ -276,7 +279,7 @@ class NodejsLambdaFunction(Construct):
                                             role = role
                                            )
         
-        add_tags(self.function, props.tags)
+        add_tags(self.function, props.tags, project_tag = project_tag)
         add_schedule(self, self.function, id, props.schedule)
 
 
