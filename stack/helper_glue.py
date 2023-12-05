@@ -13,6 +13,8 @@ import os
 
 from constructs import Construct
 
+from stack.helper_tags import add_tags
+
 
 """
 Apukoodit glue- ajojen luontiin
@@ -20,14 +22,6 @@ Apukoodit glue- ajojen luontiin
 
 
 
-"""
-Lisää tagit
-"""
-def add_tags(job, tags):
-    if tags:
-        for _t in tags:
-            for k, v in _t.items():
-                Tags.of(job).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
 """

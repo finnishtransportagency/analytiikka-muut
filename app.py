@@ -5,6 +5,7 @@ import aws_cdk as cdk
 
 from stack.analytiikka_stack import AnalytiikkaStack
 
+from stack.helper_tags import add_tags
 
 app = cdk.App()
 
@@ -20,12 +21,8 @@ AnalytiikkaStack(app,
 #
 # Yhteiset tagit kaikille
 # Environment tag lisätään kaikille stagessa (dev/prod)
-_tags_lst = app.node.try_get_context("tags")
-if _tags_lst:
-    for _t in _tags_lst:
-        for k, v in _t.items():
-            cdk.Tags.of(app).add(k, v, apply_to_launched_instances = True, priority = 300)
-
+tags = app.node.try_get_context("tags")
+add_tags(app, tags)
 
 
 app.synth()

@@ -7,11 +7,12 @@ from aws_cdk import (
     Duration,
     BundlingOutput,
     aws_iam,
-    aws_ec2,
-    Tags
+    aws_ec2
 )
 
 from constructs import Construct
+
+from stack.helper_tags import add_tags
 
 
 """
@@ -59,14 +60,6 @@ class LambdaProperties:
 
 
 
-"""
-Lisää tagit
-"""
-def add_tags(function, tags):
-    if tags:
-        for _t in tags:
-            for k, v in _t.items():
-                Tags.of(function).add(k, v, apply_to_launched_instances = True, priority = 300)
 
 
 """

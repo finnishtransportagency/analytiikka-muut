@@ -39,14 +39,12 @@
         "script_bucket_name": "vayla-script-prod",
         "vpc_name": "LatausalueProd-VPC"
       },
-      "tags": [
-        {
+      "tags": {
           "Repository": "analytiiikka-muut",
           "Administrator": "Analytiikkapalvelukeskus",
           "System Owner": "Vayla",
           "System ID": "953"
-        }
-      ],
+      },
       "@aws-cdk/core:newStyleStackSynthesis": true,
       "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
       "@aws-cdk/core:checkSecretUsage": true,
