@@ -96,7 +96,8 @@ class GlueJdbcConnection(Construct):
                  description: str = None,
                  vpc: any = None,
                  security_groups: list = None,
-                 properties: dict = None
+                 properties: dict = None,
+                 tags: dict = None
                  ):
         super().__init__(scope, id)
 
@@ -112,6 +113,7 @@ class GlueJdbcConnection(Construct):
                                                     security_groups = security_groups,
                                                     subnet = self.subnets.subnets[0]
                                                     )
+        add_tags(self.connection, tags)
 
 
 
@@ -215,9 +217,7 @@ class PythonSparkGlueJob(Construct):
 
 
 
-"""
-TODO: EI TESTATTU
-"""
+
 class PythonShellGlueJob(Construct):
 
     def __init__(self,

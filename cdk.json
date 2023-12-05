@@ -41,10 +41,10 @@
       },
       "tags": [
         {
-          "Project": "analytiikka-muut",
+          "Repository": "analytiiikka-muut",
           "Administrator": "Analytiikkapalvelukeskus",
           "System Owner": "Vayla",
-          "System ID": "0"
+          "System ID": "953"
         }
       ],
       "@aws-cdk/core:newStyleStackSynthesis": true,

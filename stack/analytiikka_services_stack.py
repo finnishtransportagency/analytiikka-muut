@@ -122,6 +122,7 @@ class AnalytiikkaServicesStack(Stack):
         #                                              )
         #                     )
 
+        servicenow_tags = { "Project": "Palautteet / ServiceNow" }
         # Servicenow: u_case
         servicenow_u_case = JavaLambdaFunction(self,
                            id = "servicenow-u_case",
@@ -145,7 +146,7 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = None,
+                                                    tags = servicenow_tags,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "u_case-schedule")
                                                    )
@@ -174,7 +175,7 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = None,
+                                                    tags = servicenow_tags,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "sn_customerservice_case-schedule")
                                                    )
@@ -203,16 +204,14 @@ class AnalytiikkaServicesStack(Stack):
                                                         "coordinate_transform": "true",
                                                         "fullscans":""
                                                     },
-                                                    tags = None,
+                                                    tags = servicenow_tags,
                                                     securitygroups = [ lambda_securitygroup ],
                                                     schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "cmdb_ci_service-schedule")
                                                    )
                           )
 
         # # Trex extra tags
-        # trex_tags = [
-        #     { "project": "trex" }
-        # ]
+        # trex_tags = { "Project": "Trex" }
         # 
         # # Trex reader, glue
         # trex_api_reader_glue = PythonShellGlueJob(self,
@@ -276,7 +275,7 @@ class AnalytiikkaServicesStack(Stack):
         #                     )
 
 
-
+        # sampo_tags = { "Project": "Sampo" }
         # glue_sampo_oracle_connection = GlueJdbcConnection(self,
         #                         id = "sampo-jdbc-oracle-connection",
         #                         vpc = vpc,
@@ -286,7 +285,8 @@ class AnalytiikkaServicesStack(Stack):
         #                             "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
         #                             "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
         #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
-        #                         })
+        #                         },
+        #                         tags = sampo_tags)
         # g1 = PythonSparkGlueJob(self,
         #          id = "testi3", 
         #          path = "glue/testi3",
@@ -297,7 +297,7 @@ class AnalytiikkaServicesStack(Stack):
         #          worker = "G 1X",
         #          version = None,
         #          role = glue_role,
-        #          tags = None,
+        #          tags = sampo_tags,
         #          arguments = None,
         #          connections = [ glue_sampo_oracle_connection.connection ],
         #          enable_spark_ui = False,
