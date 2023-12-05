@@ -24,7 +24,7 @@ AnalytiikkaStack(app,
 # Yhteiset tagit kaikille
 # Environment tag lisätään kaikille stagessa (dev/prod)
 tags = app.node.try_get_context("tags")
-add_tags(app, tags)
+#add_tags(app, tags)
 
 
 app.synth()
