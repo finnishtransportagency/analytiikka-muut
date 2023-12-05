@@ -7,6 +7,8 @@ from stack.analytiikka_stack import AnalytiikkaStack
 
 from stack.helper_tags import add_tags
 
+
+
 app = cdk.App()
 
 projectname = app.node.try_get_context('project')
