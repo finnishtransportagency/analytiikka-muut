@@ -12,11 +12,11 @@ analytiikka_muut_services_stack.py  stage sisältämät palvelut. Uudet asiat li
 helper_glue.py  Apukoodi Glue- ajojen luontiin
 helper_lambda.py  Apukoodi Lambdojen luontiin
 
-lambda/xxx/  Jokaiselle lambdalle oma hakemisto. Jos python, hakemistossa pitää olla requirements.txt mutta se voi olla tyhjä jos ei tarvita
+lambda/xxx/  Jokaiselle lambdalle oma hakemisto. Jos python, hakemistossa pitää olla requirements.txt mutta se voi olla tyhjä jos ei tarvita. Testattu python, Java, node. Layerit eii testattu, lisäkirjastot ei testattu. Vpc ok.
 lambda/testi1/  Python testi
 lambda/servicenow/  Servicenow api lukija, Java
 
-glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Ei testattu
+glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Python shell ja spark testattu. Connectin luonti ok, iimport eii testattu.
 
 
 
@@ -25,16 +25,21 @@ glue/xxx/  Jokaiselle glue- jobille oma hakemisto. Ei testattu
 
 Profiileihin kopioitu väyläpilven tilapäiset kredentiaalit
 
+Secret github- yhteyttä varten
+aws secretsmanager create-secret --name analytiikka-github-token --secret-string <github token> --profile dev_LatausalueAdmin
+
+Tuotantotili parametrista
+aws ssm put-parameter --name analytiikka-prod-account --value <prod account id> --profile dev_LatausalueAdmin
+aws ssm put-parameter --name analytiikka-prod-account --value <prod account id> --profile prod_LatausalueAdmin
+
+Bootstrap kerran molemmille tileille
 npx cdk bootstrap aws://DEV-ACCOUNT-ID/eu-west-1 --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile dev_LatausalueAdmin
 
 npx cdk bootstrap aws://PROD-ACCOUNT-ID/eu-west-1 --trust DEV-ACCOUNT-ID --cloudformation-execution-policies "arn:aws:iam::aws:policy/AdministratorAccess" --profile prod_LatausalueAdmin
 
-aws secretsmanager create-secret --name analytiikka-github-token --secret-string <github token> --profile dev_LatausalueAdmin
-
-dev- tilille luotu parametri jossa prod- tilin id
-
 git commit &  push
 
+Deploy käsin kerran, kun valmis niin git commit & push riittää
 npx cdk deploy --profile dev_LatausalueAdmin
 
 

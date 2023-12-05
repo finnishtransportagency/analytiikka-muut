@@ -73,11 +73,13 @@ class AnalytiikkaMuutServicesStack(Stack):
         # subnet1_id = self.node.try_get_context(f"{environment}_subnet1_id")
         # subnet2_id = self.node.try_get_context(f"{environment}_subnet2_id")
 
-        vpc = aws_ec2.Vpc.from_vpc_attributes(self, "VPC",
-                                              vpc_id = properties["vpc_id"],
-                                              availability_zones = [ "eu-west-1a", "eu-west-1b" ],
-                                              private_subnet_ids = [ properties["subnet1_id"], properties["subnet2_id"] ] )
-
+        # vpc = aws_ec2.Vpc.from_vpc_attributes(self, "VPC",
+        #                                       vpc_id = properties["vpc_id"],
+        #                                       availability_zones = [ "eu-west-1a", "eu-west-1b" ],
+        #                                       private_subnet_ids = [ properties["subnet1_id"], properties["subnet2_id"] ] )
+        vpc = aws_ec2.Vpc.from_lookup(self,
+                                      id = "VPC",
+                                      vpc_name = properties["vpc_name"])
 
         lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
         # aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable = False)
