@@ -9,9 +9,9 @@ from aws_cdk import (
 
 from constructs import Construct
 
-from analytiikka_muut.helper_lambda import *
-from analytiikka_muut.helper_glue import *
-from analytiikka_muut.helper_parameter import *
+from stack.helper_lambda import *
+from stack.helper_glue import *
+from stack.helper_parameter import *
 
 
 
@@ -22,7 +22,7 @@ from analytiikka_muut.helper_parameter import *
 Palvelut stack
 
 """
-class AnalytiikkaMuutServicesStack(Stack):
+class AnalytiikkaServicesStack(Stack):
 
     def __init__(self,
                  scope: Construct, 

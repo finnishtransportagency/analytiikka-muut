@@ -18,13 +18,13 @@ import aws_cdk.aws_ssm as ssm
 
 from constructs import Construct
 
-from analytiikka_muut.analytiikka_muut_stage import AnalytiikkaMuutStage
+from stack.analytiikka_stage import AnalytiikkaStage
 
 """
 CICD stack
 
 """
-class AnalytiikkaMuutStack(Stack):
+class AnalytiikkaStack(Stack):
 
     def __init__(self,
                  scope: Construct, 
@@ -82,7 +82,7 @@ class AnalytiikkaMuutStack(Stack):
 
 
         # Kehitys stage
-        dev_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
+        dev_stage = pipeline.add_stage(AnalytiikkaStage(self,
                                                             f"{projectname}-dev",
                                                             "dev",
                                                             env = Environment(account = devaccount, region = appregion)
@@ -93,7 +93,7 @@ class AnalytiikkaMuutStack(Stack):
         if not prodaccount.startswith("dummy"):
 
             # Tuotanto stage
-            prod_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
+            prod_stage = pipeline.add_stage(AnalytiikkaStage(self,
                                                                  f"{projectname}-prod",
                                                                  "prod",
                                                                  env = Environment(account = prodaccount, region = appregion)

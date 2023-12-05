@@ -6,13 +6,13 @@ from aws_cdk import (
 
 from constructs import Construct
 
-from analytiikka_muut.analytiikka_muut_services_stack import AnalytiikkaMuutServicesStack
+from stack.analytiikka_services_stack import AnalytiikkaServicesStack
 
 """
 Pipeline stage
 
 """
-class AnalytiikkaMuutStage(Stage):
+class AnalytiikkaStage(Stage):
 
     def __init__(self,
                  scope: Construct, 
@@ -30,7 +30,7 @@ class AnalytiikkaMuutStage(Stage):
         print(f"stage {environment}: account = '{account}'")
         print(f"stage {environment}: region = '{region}'")
         
-        services_stack = AnalytiikkaMuutServicesStack(self, 
+        services_stack = AnalytiikkaServicesStack(self, 
                                                       f"{projectname}-services-stack-{environment}", 
                                                       environment,
                                                       env = Environment(account = account, region = region )
