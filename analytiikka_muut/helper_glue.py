@@ -91,8 +91,8 @@ class GlueJdbcConnection(Construct):
     Glue connection
     """
     def __init__(self,
-                 scope: Construct, 
-                 id: str, 
+                 scope: Construct,
+                 id: str,
                  description: str = None,
                  vpc: any = None,
                  security_groups: list = None,

@@ -3,8 +3,7 @@ from aws_cdk import (
     Environment,
     aws_secretsmanager,
     aws_codepipeline_actions,
-    aws_iam,
-    Lazy
+    aws_iam
 )
 
 from aws_cdk.pipelines import (
@@ -37,16 +36,14 @@ class AnalytiikkaMuutStack(Stack):
         appregion = self.region
 
         # Projekti == repon nimi
-        projectname = self.node.try_get_context('project')
+        projectname = self.node.try_get_context("project")
         # Git yhteys
-        gitrepo = self.node.try_get_context('gitrepo')
-        gitbranch = self.node.try_get_context('gitbranch')
-        gittokensecretname = self.node.try_get_context('gittokensecretname')
+        gitrepo = self.node.try_get_context("gitrepo")
+        gitbranch = self.node.try_get_context("gitbranch")
+        gittokensecretname = self.node.try_get_context("gittokensecretname")
         gitsecret = aws_secretsmanager.Secret.from_secret_name_v2(self, "gittoken", secret_name = gittokensecretname)
-        
-        prodaccountparameter = self.node.try_get_context('prodaccountparameter')
-        #prodaccountparam = ssm.StringParameter.from_string_parameter_attributes(self, "prodaccount", parameter_name = prodaccountparameter)
-        #prodaccount = prodaccountparam.string_value
+        # Tuotantotiili
+        prodaccountparameter = self.node.try_get_context("prodaccountparameter")
         prodaccount = ssm.StringParameter.value_from_lookup(self, prodaccountparameter)
 
         print(f"main: dev account = {devaccount}")
@@ -92,14 +89,15 @@ class AnalytiikkaMuutStack(Stack):
                                                             )
                                                            )
 
+        # Huom: pitää testata että tehdään vasta tuotantoliliparametrin lookupin jälkeen
         if not prodaccount.startswith("dummy"):
 
             # Tuotanto stage
             prod_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
-                                                                f"{projectname}-prod",
-                                                                "prod",
-                                                                env = Environment(account = prodaccount, region = appregion)
-                                                                )
+                                                                 f"{projectname}-prod",
+                                                                 "prod",
+                                                                 env = Environment(account = prodaccount, region = appregion)
+                                                                 )
                                                                 )
 
             # Tuotannon manuaalihyväksyntä

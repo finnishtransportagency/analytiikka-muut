@@ -100,6 +100,7 @@ def get_pythonruntime(runtime: str):
             lambda_runtime = aws_lambda.Runtime.PYTHON_3_12
     return(lambda_runtime)
 
+
 def get_noderuntime(runtime: str):
     lambda_runtime = aws_lambda.Runtime.NODEJS_18_X
     if runtime != None:

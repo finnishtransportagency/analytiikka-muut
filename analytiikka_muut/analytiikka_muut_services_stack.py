@@ -7,9 +7,6 @@ from aws_cdk import (
     RemovalPolicy
 )
 
-
-from aws_cdk.aws_iam import ServicePrincipal
-
 from constructs import Construct
 
 from analytiikka_muut.helper_lambda import *
@@ -51,39 +48,49 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Yhteinen arkisto- buketti
         archive_bucket_name = properties["archive_bucket_name"]
         # Yhteiskäyttöinen rooli lambdoille
-        lambda_role_name = self.node.try_get_context('lambda_role_name')
+        lambda_role_name = self.node.try_get_context("lambda_role_name")
         # Yhteiskäyttöinen securoty group lambdoille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
-        lambda_security_group_name = self.node.try_get_context('lambda_security_group_name')
+        lambda_security_group_name = self.node.try_get_context("lambda_security_group_name")
         # Yhteiskäyttöinen rooli glue- jobeille
-        glue_role_name = self.node.try_get_context('glue_role_name')
+        glue_role_name = self.node.try_get_context("glue_role_name")
         # Yhteiskäyttöinen security group glue- jobeille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
-        glue_security_group_name = self.node.try_get_context('glue_security_group_name')
+        glue_security_group_name = self.node.try_get_context("glue_security_group_name")
 
 
-        print(f"services {environment}: script bucket = '{script_bucket_name}")
-        print(f"services {environment}: target bucket = '{target_bucket_name}")
-        print(f"services {environment}: temp bucket = '{temp_bucket_name}")
-        print(f"services {environment}: archive bucket = '{archive_bucket_name}")
-        print(f"services {environment}: lambda role = '{lambda_role_name}")
-        print(f"services {environment}: lambda sg = '{lambda_security_group_name}")
-        print(f"services {environment}: glue role = '{glue_role_name}")
-        print(f"services {environment}: glue sg = '{glue_security_group_name}")
+        # print(f"services {environment}: script bucket = '{script_bucket_name}")
+        # print(f"services {environment}: target bucket = '{target_bucket_name}")
+        # print(f"services {environment}: temp bucket = '{temp_bucket_name}")
+        # print(f"services {environment}: archive bucket = '{archive_bucket_name}")
+        # print(f"services {environment}: lambda role = '{lambda_role_name}")
+        # print(f"services {environment}: lambda sg = '{lambda_security_group_name}")
+        # print(f"services {environment}: glue role = '{glue_role_name}")
+        # print(f"services {environment}: glue sg = '{glue_security_group_name}")
 
-        # vpc_id = self.node.try_get_context(f"{environment}_vpc_id")
-        # subnet1_id = self.node.try_get_context(f"{environment}_subnet1_id")
-        # subnet2_id = self.node.try_get_context(f"{environment}_subnet2_id")
-
-        # vpc = aws_ec2.Vpc.from_vpc_attributes(self, "VPC",
-        #                                       vpc_id = properties["vpc_id"],
-        #                                       availability_zones = [ "eu-west-1a", "eu-west-1b" ],
-        #                                       private_subnet_ids = [ properties["subnet1_id"], properties["subnet2_id"] ] )
+        # Vpc lookup
         vpc = aws_ec2.Vpc.from_lookup(self,
                                       id = "VPC",
                                       vpc_name = properties["vpc_name"])
 
-        lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, "LambdaSecurityGroup", security_group_name = lambda_security_group_name, vpc = vpc)
-        # aws_iam.Role.from_role_arn(self, "LambdaRole", f"arn:aws:iam::{self.account}:role/{lambda_role_name}", mutable = False)
+        lambda_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, 
+                                                                         "LambdaSecurityGroup", 
+                                                                         security_group_name = lambda_security_group_name, 
+                                                                         vpc = vpc)
         lambda_role = aws_iam.Role.from_role_name(self, "LambdaRole", role_name= lambda_role_name)
+
+        glue_securitygroup = aws_ec2.SecurityGroup.from_lookup_by_name(self, 
+                                                                       "GlueSecurityGroup", 
+                                                                       security_group_name = glue_security_group_name, 
+                                                                       vpc = vpc)
+        glue_role = aws_iam.Role.from_role_name(self, "GlueRole", role_name = glue_role_name)
+
+        glue_common_jdbc_connection_name = self.node.try_get_context("glue_common_jdbc_connection_name")
+        glue_common_jdbc_connection = aws_glue_alpha.Connection.from_connection_name(self, "GlueCommonJdbcConnection", connection_name = glue_common_jdbc_connection_name)
+        
+        
+
+
+
+
 
         #
         # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
@@ -93,114 +100,114 @@ class AnalytiikkaMuutServicesStack(Stack):
         # Esimerkki 1 python lambda
         # HUOM: schedule- määritys: https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html
 
-        l1 = PythonLambdaFunction(self,
-                             id = "testi1",
-                             path = "lambda/testi1",
-                             index = "testi1.py",
-                             handler = "testi1.lambda_handler",
-                             description = "Testilambdan kuvaus",
-                             role = lambda_role,
-                             props = LambdaProperties(vpc = vpc,
-                                                      timeout_min = 2, 
-                                                      environment = {
-                                                          "target_bucket": target_bucket_name,
-                                                          "dummy_input_value": "10001101101"
-                                                      },
-                                                      tags = [
-                                                          { "testitag": "jotain" },
-                                                          { "toinen": "arvo" }
-                                                      ],
-                                                      securitygroups = [ lambda_securitygroup ],
-                                                      schedule = "0 10 20 * ? *"
-                                                     )
-                            )
+        # l1 = PythonLambdaFunction(self,
+        #                      id = "testi1",
+        #                      path = "lambda/testi1",
+        #                      index = "testi1.py",
+        #                      handler = "testi1.lambda_handler",
+        #                      description = "Testilambdan kuvaus",
+        #                      role = lambda_role,
+        #                      props = LambdaProperties(vpc = vpc,
+        #                                               timeout_min = 2, 
+        #                                               environment = {
+        #                                                   "target_bucket": target_bucket_name,
+        #                                                   "dummy_input_value": "10001101101"
+        #                                               },
+        #                                               tags = [
+        #                                                   { "testitag": "jotain" },
+        #                                                   { "toinen": "arvo" }
+        #                                               ],
+        #                                               securitygroups = [ lambda_securitygroup ],
+        #                                               schedule = "0 10 20 * ? *"
+        #                                              )
+        #                     )
 
         # Servicenow: u_case
-        # servicenow_u_case = JavaLambdaFunction(self,
-        #                    id = "servicenow-u_case",
-        #                    description = "ServiceNow haku taululle u_case",
-        #                    path = "lambda/servicenow",
-        #                    jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
-        #                    handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
-        #                    role = lambda_role,
-        #                    props = LambdaProperties(vpc = vpc,
-        #                                             timeout_min = 15,
-        #                                             memory_mb = 2048,
-        #                                             environment = {
-        #                                                 "secret_name": f"api-servicenow-{environment}",
-        #                                                 "query_string_default": "u_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
-        #                                                 "query_string_date": "u_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
-        #                                                 "output_split_limit": "1500",
-        #                                                 "api_limit": "600",
-        #                                                 "output_bucket": target_bucket_name,
-        #                                                 "output_path": "servicenow",
-        #                                                 "output_filename": "u_case",
-        #                                                 "coordinate_transform": "true",
-        #                                                 "fullscans":""
-        #                                             },
-        #                                             tags = None,
-        #                                             securitygroups = [ lambda_securitygroup ],
-        #                                             schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "u_case-schedule")
-        #                                            )
-        #                   )
+        servicenow_u_case = JavaLambdaFunction(self,
+                           id = "servicenow-u_case",
+                           description = "ServiceNow haku taululle u_case",
+                           path = "lambda/servicenow",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
+                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+                           role = lambda_role,
+                           props = LambdaProperties(vpc = vpc,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
+                                                    environment = {
+                                                        "secret_name": f"api-servicenow-{environment}",
+                                                        "query_string_default": "u_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
+                                                        "query_string_date": "u_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
+                                                        "output_split_limit": "1500",
+                                                        "api_limit": "600",
+                                                        "output_bucket": target_bucket_name,
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "u_case",
+                                                        "coordinate_transform": "true",
+                                                        "fullscans":""
+                                                    },
+                                                    tags = None,
+                                                    securitygroups = [ lambda_securitygroup ],
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "u_case-schedule")
+                                                   )
+                          )
 
         # Servicenow: sn_customerservice_case
-        # servicenow_sn_customerservice_case = JavaLambdaFunction(self,
-        #                    id = "servicenow-sn_customerservice_case",
-        #                    description = "ServiceNow haku taululle sn_customerservice_case",
-        #                    path = "lambda/servicenow",
-        #                    jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
-        #                    handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
-        #                    role = lambda_role,
-        #                    props = LambdaProperties(vpc = vpc,
-        #                                             timeout_min = 15,
-        #                                             memory_mb = 2048,
-        #                                             environment = {
-        #                                                 "secret_name": f"api-servicenow-{environment}",
-        #                                                 "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
-        #                                                 "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
-        #                                                 "output_split_limit": "1500",
-        #                                                 "api_limit": "600",
-        #                                                 "output_bucket": target_bucket_name,
-        #                                                 "output_path": "servicenow",
-        #                                                 "output_filename": "sn_customerservice_case",
-        #                                                 "coordinate_transform": "true",
-        #                                                 "fullscans":""
-        #                                             },
-        #                                             tags = None,
-        #                                             securitygroups = [ lambda_securitygroup ],
-        #                                             schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "sn_customerservice_case-schedule")
-        #                                            )
-        #                   )
+        servicenow_sn_customerservice_case = JavaLambdaFunction(self,
+                           id = "servicenow-sn_customerservice_case",
+                           description = "ServiceNow haku taululle sn_customerservice_case",
+                           path = "lambda/servicenow",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
+                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+                           role = lambda_role,
+                           props = LambdaProperties(vpc = vpc,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
+                                                    environment = {
+                                                        "secret_name": f"api-servicenow-{environment}",
+                                                        "query_string_default": "sn_customerservice_case?sysparm_query=sys_updated_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()%5EORsys_created_onBETWEENjavascript%3Ags.daysAgoStart(3)%40javascript%3Ags.endOfYesterday()&sysparm_display_value=true",
+                                                        "query_string_date": "sn_customerservice_case?sysparm_query=sys_created_onON{DATEFILTER}@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27start%27)@javascript:gs.dateGenerate(%27{DATEFILTER}%27,%27end%27)&sysparm_display_value=true",
+                                                        "output_split_limit": "1500",
+                                                        "api_limit": "600",
+                                                        "output_bucket": target_bucket_name,
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "sn_customerservice_case",
+                                                        "coordinate_transform": "true",
+                                                        "fullscans":""
+                                                    },
+                                                    tags = None,
+                                                    securitygroups = [ lambda_securitygroup ],
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "sn_customerservice_case-schedule")
+                                                   )
+                          )
 
         # Servicenow: cmdb_ci_service
-        # servicenow_cmdb_ci_service = JavaLambdaFunction(self,
-        #                    id = "servicenow-cmdb_ci_service",
-        #                    description = "ServiceNow haku taululle cmdb_ci_service",
-        #                    path = "lambda/servicenow",
-        #                    jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
-        #                    handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
-        #                    role = lambda_role,
-        #                    props = LambdaProperties(vpc = vpc,
-        #                                             timeout_min = 15,
-        #                                             memory_mb = 2048,
-        #                                             environment = {
-        #                                                 "secret_name": f"api-servicenow-{environment}",
-        #                                                 "query_string_default": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
-        #                                                 "query_string_date": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
-        #                                                 "output_split_limit": "1500",
-        #                                                 "api_limit": "600",
-        #                                                 "output_bucket": target_bucket_name,
-        #                                                 "output_path": "servicenow",
-        #                                                 "output_filename": "cmdb_ci_service",
-        #                                                 "coordinate_transform": "true",
-        #                                                 "fullscans":""
-        #                                             },
-        #                                             tags = None,
-        #                                             securitygroups = [ lambda_securitygroup ],
-        #                                             schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "cmdb_ci_service-schedule")
-        #                                            )
-        #                   )
+        servicenow_cmdb_ci_service = JavaLambdaFunction(self,
+                           id = "servicenow-cmdb_ci_service",
+                           description = "ServiceNow haku taululle cmdb_ci_service",
+                           path = "lambda/servicenow",
+                           jarname = "servicenow-to-s3-lambda-1.0.0-jar-with-dependencies.jar",
+                           handler = "com.cgi.lambda.apifetch.LambdaFunctionHandler",
+                           role = lambda_role,
+                           props = LambdaProperties(vpc = vpc,
+                                                    timeout_min = 15,
+                                                    memory_mb = 2048,
+                                                    environment = {
+                                                        "secret_name": f"api-servicenow-{environment}",
+                                                        "query_string_default": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
+                                                        "query_string_date": "cmdb_ci_service?sysparm_query=service_classification%3DService&sysparm_display_value=true",
+                                                        "output_split_limit": "1500",
+                                                        "api_limit": "600",
+                                                        "output_bucket": target_bucket_name,
+                                                        "output_path": "servicenow",
+                                                        "output_filename": "cmdb_ci_service",
+                                                        "coordinate_transform": "true",
+                                                        "fullscans":""
+                                                    },
+                                                    tags = None,
+                                                    securitygroups = [ lambda_securitygroup ],
+                                                    schedule = get_parameter(path = "lambda/servicenow", environment = environment, name = "cmdb_ci_service-schedule")
+                                                   )
+                          )
 
         # # Trex extra tags
         # trex_tags = [
