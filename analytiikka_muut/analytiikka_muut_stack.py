@@ -92,14 +92,16 @@ class AnalytiikkaMuutStack(Stack):
                                                             )
                                                            )
 
-        # Tuotanto stage
-        prod_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
-                                                             f"{projectname}-prod",
-                                                             "prod",
-                                                             env = Environment(account = prodaccount, region = appregion)
-                                                             )
-                                                            )
+        if not prodaccount.startswith("dummy"):
 
-        # Tuotannon manuaalihyväksyntä
-        prod_stage.add_pre(ManualApprovalStep('prod-approval'))
+            # Tuotanto stage
+            prod_stage = pipeline.add_stage(AnalytiikkaMuutStage(self,
+                                                                f"{projectname}-prod",
+                                                                "prod",
+                                                                env = Environment(account = prodaccount, region = appregion)
+                                                                )
+                                                                )
+
+            # Tuotannon manuaalihyväksyntä
+            prod_stage.add_pre(ManualApprovalStep('prod-approval'))
 
