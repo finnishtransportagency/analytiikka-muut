@@ -1,6 +1,6 @@
 # analytiikka-muut
 
-
+**Julkinen**
 
 Hakemistorakenne:
 
@@ -52,7 +52,7 @@ HUOM: cdk synth luo cdk.context.json tiedoston jota ei tallenneta gittiin.
 
 Normaali käyttö:
 
-git push master- branshiin käynnistää pipelinen joka asentaa kaiken.
+git push master- branchiin käynnistää pipelinen joka asentaa kaiken.
 
 
 
